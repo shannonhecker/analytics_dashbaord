@@ -113,16 +113,7 @@ function TickerPill({code, name, sub, price, delta, spark, color, onClick}) {
 }
 
 function NovaHome({openDash}) {
-  // Locked palette — c1 Equities, c2 Corp Bonds, c3 Govt Bonds, c4 Private Eq, c5 Hedge Funds, c6 Cash/Other
-  // Portfolio rows reuse these by row index (purely a "row badge" use, not data-encoding)
-  const rowColors = ['var(--c1)','var(--c2)','var(--c3)','var(--c4)','var(--c5)','var(--c6)','var(--c7)','var(--c8)'];
-  const portfolios = DATA.portfolios.slice(0, 8).map((p, i) => ({
-    ...p,
-    code: p.name.split(' ').map(w=>w[0]).join('').slice(0,3).toUpperCase(),
-    color: rowColors[i % rowColors.length],
-  }));
-
-  // Featured workspace cards (with mini chart preview thumbnails) — restored from V1
+  // Featured workspace cards (preserved with mini chart previews)
   const featured = [
     { id:'performance', title:'Performance',    cls:'Holdings', desc:'Portfolio returns, attribution, and benchmark comparison across asset classes.', updated:'2 min ago',  kpi:'+5.18%', delta:'+2.13pts', preview:'area',  tint:'var(--c1)' },
     { id:'risk',        title:'Risk',           cls:'Holdings', desc:'VaR, CVaR, contribution analysis, issuer exposure, currency breakdown.',         updated:'5 min ago',  kpi:'$46.3M', delta:'-0.12%',   preview:'bars',  tint:'var(--c4)' },
@@ -130,17 +121,6 @@ function NovaHome({openDash}) {
     { id:'issuer',      title:'Issuer Detail',  cls:'Company',  desc:'Single-issuer deep dive with peer comparison and scoring history.',                updated:'22 min ago', kpi:'AA',     delta:'+2 notch', preview:'donut', tint:'var(--c3)' },
   ];
 
-  // Top issuers — varied palette but no semantic green/red
-  const issuers = [
-    { code:'AXS', name:'Apex Systems',        sub:'US · Tech',         price:'4.21%', delta:  6.4, spark: series(24,100,1.2,11), color:'var(--c1)' },
-    { code:'CDR', name:'Calder Industries',   sub:'US · Industrials',  price:'3.87%', delta: -1.2, spark: series(24,100,1.0,12), color:'var(--c4)' },
-    { code:'MRD', name:'Meridian Industries', sub:'US · Industrials',  price:'3.42%', delta:  2.8, spark: series(24,100,0.9,13), color:'var(--c5)' },
-    { code:'ORN', name:'Orion Holdings',      sub:'EU · Materials',    price:'2.95%', delta:  0.4, spark: series(24,100,1.4,14), color:'var(--c3)' },
-    { code:'SBL', name:'Sable & Co.',         sub:'UK · Financials',   price:'2.61%', delta: -2.1, spark: series(24,100,1.3,15), color:'var(--c2)' },
-    { code:'NVL', name:'Novalis Group',       sub:'EU · Healthcare',   price:'2.23%', delta:  3.1, spark: series(24,100,0.8,16), color:'var(--c6)' },
-  ];
-
-  // Reports
   const reports = [
     { id:'esg',         name:'Sustainable Portfolio Report', cls:'Holdings', theme:'Sustainable Investment', updated:'1 hr ago',   owner:'Maya Klein' },
     { id:'performance', name:'Performance Report',           cls:'Holdings', theme:'Performance',            updated:'2 min ago',  owner:'Maya Klein' },
@@ -151,202 +131,91 @@ function NovaHome({openDash}) {
   ];
 
   return (
-    <div style={{flex:1, overflow:'auto', background:'var(--bg)'}}>
-      <div style={{maxWidth:1400, margin:'0 auto', padding:'40px 32px 64px'}}>
-
-        {/* Hero */}
-        <div style={{marginBottom:36}}>
-          <h1 style={{margin:0, fontSize:38, fontWeight:700, letterSpacing:'-0.03em', color:'var(--ink)'}}>Markets, everywhere</h1>
-          <p style={{margin:'8px 0 0', fontSize:15, color:'var(--ink-3)', maxWidth:600}}>Your portfolio analytics in one place — performance, risk, sustainability, and issuer drill-down.</p>
-        </div>
-
-        {/* Featured workspaces — cards with mini chart preview */}
-        <div style={{display:'grid', gridTemplateColumns:'repeat(4, 1fr)', gap:16, marginBottom:48}}>
-          {featured.map(c => (
-            <button key={c.id} onClick={()=>openDash(c.id)} style={{textAlign:'left', background:'var(--bg-elev)', border:'1px solid var(--line)', borderRadius:8, overflow:'hidden', transition:'all 150ms', display:'flex', flexDirection:'column'}}
-              onMouseEnter={e=>{e.currentTarget.style.borderColor='var(--ink-5)'; e.currentTarget.style.boxShadow='var(--shadow-md)'; e.currentTarget.style.transform='translateY(-1px)';}}
-              onMouseLeave={e=>{e.currentTarget.style.borderColor='var(--line)'; e.currentTarget.style.boxShadow='none'; e.currentTarget.style.transform='none';}}>
-              <div style={{padding:'16px 18px 10px'}}>
-                <div style={{display:'flex', alignItems:'center', gap:8}}>
-                  <div style={{fontSize:14, fontWeight:600, color:'var(--ink)'}}>{c.title}</div>
-                  <span style={{fontSize:10, color:'var(--ink-3)', background:'var(--bg-sunken)', padding:'2px 7px', borderRadius:4, marginLeft:'auto', fontWeight:600, letterSpacing:'0.02em'}}>{c.cls}</span>
-                </div>
-                <div style={{fontSize:12, color:'var(--ink-3)', marginTop:6, lineHeight:1.45, display:'-webkit-box', WebkitLineClamp:2, WebkitBoxOrient:'vertical', overflow:'hidden', minHeight:34}}>{c.desc}</div>
-              </div>
-              <div style={{padding:'0 18px 10px', display:'flex', alignItems:'baseline', gap:10}}>
-                <div className="mono" style={{fontSize:22, fontWeight:700, letterSpacing:'-0.02em', color:'var(--ink)'}}>{c.kpi}</div>
-                <div style={{fontSize:11, color:c.delta.startsWith('-')?'var(--neg)':'var(--pos)', fontFamily:'var(--font-mono)', fontWeight:600}}>{c.delta}</div>
-              </div>
-              <div style={{height:64, marginTop:'auto', padding:'0 10px', display:'flex', alignItems:'flex-end'}}>
-                <CardPreview kind={c.preview} color={c.tint}/>
-              </div>
-              <div style={{padding:'8px 18px', borderTop:'1px solid var(--line-faint)', fontSize:10.5, color:'var(--ink-4)', fontFamily:'var(--font-mono)', letterSpacing:'0.04em', display:'flex', justifyContent:'space-between', textTransform:'uppercase', fontWeight:600}}>
-                <span>Updated {c.updated}</span>
-                <span style={{color:'var(--accent)'}}>Open →</span>
-              </div>
-            </button>
-          ))}
-        </div>
-
-        {/* Portfolios section */}
-        <section style={{marginBottom:48}}>
-          <SectionHead title="Portfolios" subtitle="Holdings by mandate · monthly returns" seeAll onSeeAll={()=>openDash('performance')}/>
-          <div style={{background:'var(--bg-elev)', border:'1px solid var(--line)', borderRadius:8, overflow:'hidden'}}>
-            <table style={{width:'100%', borderCollapse:'collapse', fontSize:13}}>
-              <thead>
-                <tr style={{color:'var(--ink-4)', fontSize:11, textTransform:'uppercase', letterSpacing:'0.04em', background:'var(--bg-sunken)'}}>
-                  <th style={{textAlign:'left', padding:'10px 14px', fontWeight:600}}>Symbol</th>
-                  <th style={{textAlign:'right', padding:'10px 14px', fontWeight:600}}>Market value</th>
-                  <th style={{textAlign:'right', padding:'10px 14px', fontWeight:600}}>1M</th>
-                  <th style={{textAlign:'right', padding:'10px 14px', fontWeight:600}}>YTD</th>
-                  <th style={{textAlign:'right', padding:'10px 14px', fontWeight:600}}>Excess</th>
-                  <th style={{textAlign:'left', padding:'10px 14px', fontWeight:600}}>24M</th>
-                </tr>
-              </thead>
-              <tbody>
-                {portfolios.map((p,i)=>(
-                  <tr key={i} onClick={()=>openDash('performance')} style={{borderTop:'1px solid var(--line-faint)', cursor:'pointer'}}
-                    onMouseEnter={e=>e.currentTarget.style.background='var(--bg-sunken)'}
-                    onMouseLeave={e=>e.currentTarget.style.background=''}>
-                    <td style={{padding:'12px 14px'}}>
-                      <div style={{display:'flex', alignItems:'center', gap:10}}>
-                        <div style={{width:30, height:30, borderRadius:'50%', background:p.color, color:'white', display:'flex', alignItems:'center', justifyContent:'center', fontSize:10, fontWeight:700, fontFamily:'var(--font-mono)', flexShrink:0}}>{p.code}</div>
-                        <div style={{minWidth:0}}>
-                          <div style={{fontSize:13, fontWeight:600, color:'var(--ink)'}}>{p.name}</div>
-                          <div style={{fontSize:11, color:'var(--ink-4)', marginTop:1}}>{p.ccy}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="num" style={{padding:'12px 14px', color:'var(--ink)', fontWeight:500}}>${nfmt(p.mv,1)}</td>
-                    <td className="num" style={{padding:'12px 14px', color:p.pnl>=0?'var(--pos)':'var(--neg)', fontWeight:600}}>{p.pnl>=0?'+':''}{p.pnl.toFixed(2)}%</td>
-                    <td className="num" style={{padding:'12px 14px', color:p.ytd>=0?'var(--pos)':'var(--neg)', fontWeight:600}}>{p.ytd>=0?'+':''}{p.ytd.toFixed(2)}%</td>
-                    <td className="num" style={{padding:'12px 14px', color:p.ytdx>=0?'var(--pos)':'var(--neg)', fontWeight:600}}>{p.ytdx>=0?'+':''}{p.ytdx.toFixed(2)}%</td>
-                    <td style={{padding:'12px 14px', width:100}}><NovaSpark data={p.spark} width={84} height={24} grad/></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        {/* Asset Allocation */}
-        <section style={{marginBottom:48}}>
-          <SectionHead title="Asset allocation" subtitle="Current snapshot by asset class" seeAll onSeeAll={()=>openDash('performance')}/>
-          <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:16}}>
-            <div style={{background:'var(--bg-elev)', border:'1px solid var(--line)', borderRadius:8, padding:20}}>
-              <NovaDonut segments={[
-                {label:'Equities',         value:40.8, color:'var(--c1)'},
-                {label:'Corporate Bonds',  value:25.0, color:'var(--c2)'},
-                {label:'Government Bonds', value:12.2, color:'var(--c3)'},
-                {label:'Private Equity',   value:11.0, color:'var(--c4)'},
-                {label:'Hedge Funds',      value:8.0,  color:'var(--c5)'},
-                {label:'Other',            value:3.0,  color:'var(--c6)'},
-              ]} centerLabel="$2.83B" centerSub="Total MV"/>
-            </div>
-            <div style={{background:'var(--bg-elev)', border:'1px solid var(--line)', borderRadius:8, padding:'8px 12px'}}>
-              <NovaArea series={DATA.allocationHistory.series.slice(0,5)} labels={DATA.allocationHistory.labels} height={260}/>
-            </div>
-          </div>
-        </section>
-
-        {/* Top Issuers */}
-        <section style={{marginBottom:48}}>
-          <SectionHead title="Top issuers" subtitle="Holdings ranked by exposure" seeAll onSeeAll={()=>openDash('issuer')}/>
-          <div style={{background:'var(--bg-elev)', border:'1px solid var(--line)', borderRadius:8, overflow:'hidden'}}>
-            <table style={{width:'100%', borderCollapse:'collapse', fontSize:13}}>
-              <thead>
-                <tr style={{color:'var(--ink-4)', fontSize:11, textTransform:'uppercase', letterSpacing:'0.04em', background:'var(--bg-sunken)'}}>
-                  <th style={{textAlign:'left', padding:'10px 14px', fontWeight:600}}>Issuer</th>
-                  <th style={{textAlign:'right', padding:'10px 14px', fontWeight:600}}>Exposure</th>
-                  <th style={{textAlign:'right', padding:'10px 14px', fontWeight:600}}>1M</th>
-                  <th style={{textAlign:'left', padding:'10px 14px', fontWeight:600}}>24M</th>
-                </tr>
-              </thead>
-              <tbody>
-                {issuers.map((it,i)=>{
-                  const up = it.delta >= 0;
-                  return (
-                    <tr key={i} onClick={()=>openDash('issuer')} style={{borderTop:'1px solid var(--line-faint)', cursor:'pointer'}}
-                      onMouseEnter={e=>e.currentTarget.style.background='var(--bg-sunken)'}
-                      onMouseLeave={e=>e.currentTarget.style.background=''}>
-                      <td style={{padding:'12px 14px'}}>
-                        <div style={{display:'flex', alignItems:'center', gap:10}}>
-                          <div style={{width:30, height:30, borderRadius:'50%', background:it.color, color:'white', display:'flex', alignItems:'center', justifyContent:'center', fontSize:10, fontWeight:700, fontFamily:'var(--font-mono)', flexShrink:0}}>{it.code}</div>
-                          <div style={{minWidth:0}}>
-                            <div style={{fontSize:13, fontWeight:600, color:'var(--ink)'}}>{it.name}</div>
-                            <div style={{fontSize:11, color:'var(--ink-4)', marginTop:1}}>{it.sub}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="num" style={{padding:'12px 14px', fontWeight:600, color:'var(--ink)'}}>{it.price}</td>
-                      <td className="num" style={{padding:'12px 14px', color: up?'var(--pos)':'var(--neg)', fontWeight:600}}>{up?'+':''}{it.delta.toFixed(2)}%</td>
-                      <td style={{padding:'12px 14px', width:100}}><NovaSpark data={it.spark} width={84} height={24} grad color={up?'var(--pos)':'var(--neg)'}/></td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        {/* Risk + Sustainability */}
-        <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:24, marginBottom:48}}>
-          <section>
-            <SectionHead title="Risk" subtitle="VaR · CVaR · stress" seeAll onSeeAll={()=>openDash('risk')}/>
-            <div style={{background:'var(--bg-elev)', border:'1px solid var(--line)', borderRadius:8, overflow:'hidden'}}>
-              <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', borderBottom:'1px solid var(--line-faint)'}}>
-                <RiskTile label="VaR 95%" value="$46.3M" delta={-0.12} sep/>
-                <RiskTile label="VaR 99%" value="$54.2M" delta={0.34}/>
-              </div>
-              <div style={{display:'grid', gridTemplateColumns:'1fr 1fr'}}>
-                <RiskTile label="CVaR" value="$56.7M" delta={0.21} sep/>
-                <RiskTile label="Sharpe" value="1.42" delta={0.09}/>
-              </div>
-            </div>
-          </section>
-          <section>
-            <SectionHead title="Sustainability" subtitle="ESG scores by pillar" seeAll onSeeAll={()=>openDash('esg')}/>
-            <div style={{background:'var(--bg-elev)', border:'1px solid var(--line)', borderRadius:8, padding:'16px 12px', display:'grid', gridTemplateColumns:'repeat(4, 1fr)', gap:8}}>
-              <MiniGauge value={5.50} label="ESG" color="var(--accent)"/>
-              <MiniGauge value={4.21} label="E"   color="var(--c2)"/>
-              <MiniGauge value={6.30} label="S"   color="var(--c1)"/>
-              <MiniGauge value={9.28} label="G"   color="var(--c3)"/>
-            </div>
-          </section>
-        </div>
-
-        {/* Reports */}
-        <section>
-          <SectionHead title="Recent reports" subtitle="Saved analytics across all workspaces"/>
-          <div style={{background:'var(--bg-elev)', border:'1px solid var(--line)', borderRadius:8, overflow:'hidden'}}>
-            <table style={{width:'100%', borderCollapse:'collapse', fontSize:13}}>
-              <thead>
-                <tr style={{color:'var(--ink-4)', fontSize:11, textTransform:'uppercase', letterSpacing:'0.04em', background:'var(--bg-sunken)'}}>
-                  <th style={{textAlign:'left', padding:'10px 14px', fontWeight:600}}>Name</th>
-                  <th style={{textAlign:'left', padding:'10px 14px', fontWeight:600}}>Class</th>
-                  <th style={{textAlign:'left', padding:'10px 14px', fontWeight:600}}>Theme</th>
-                  <th style={{textAlign:'left', padding:'10px 14px', fontWeight:600}}>Owner</th>
-                  <th style={{textAlign:'right', padding:'10px 14px', fontWeight:600}}>Updated</th>
-                </tr>
-              </thead>
-              <tbody>
-                {reports.map((r,i)=>(
-                  <tr key={i} onClick={()=>openDash(r.id)} style={{borderTop:'1px solid var(--line-faint)', cursor:'pointer'}}
-                    onMouseEnter={e=>e.currentTarget.style.background='var(--bg-sunken)'}
-                    onMouseLeave={e=>e.currentTarget.style.background=''}>
-                    <td style={{padding:'12px 14px', color:'var(--accent)', fontWeight:600}}>{r.name}</td>
-                    <td style={{padding:'12px 14px', color:'var(--ink-3)'}}><span style={{fontSize:11, padding:'2px 7px', border:'1px solid var(--line)', borderRadius:4}}>{r.cls}</span></td>
-                    <td style={{padding:'12px 14px', color:'var(--ink-2)'}}>{r.theme}</td>
-                    <td style={{padding:'12px 14px', color:'var(--ink-3)'}}>{r.owner}</td>
-                    <td style={{padding:'12px 14px', textAlign:'right', color:'var(--ink-4)', fontFamily:'var(--font-mono)', fontSize:11.5}}>{r.updated}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-
+    <div style={{flex:1, overflow:'auto', padding:24, display:'flex', flexDirection:'column', gap:16}}>
+      {/* KPI strip — 4-up */}
+      <div style={{display:'grid', gridTemplateColumns:'repeat(4, minmax(0, 1fr))', gap:12}}>
+        <HeroKpi label="Total MV"      value="$2.83B"  delta={2.41} spark={series(20,100,2,101,0.5)}   hero/>
+        <HeroKpi label="YTD Return"    value="+5.18%"  delta={1.63} deltaLabel="pts" spark={series(20,100,2.2,103,0.8)}/>
+        <HeroKpi label="Active Return" value="+2.13%"  delta={-0.04} spark={series(20,100,0.8,104,0.2)}/>
+        <HeroKpi label="Sharpe"        value="1.42"    delta={0.09} deltaLabel="" spark={series(20,100,1.1,107,0.2)}/>
       </div>
+
+      {/* Workspace preview cards — 4-up */}
+      <div style={{display:'grid', gridTemplateColumns:'repeat(4, 1fr)', gap:16}}>
+        {featured.map(c => (
+          <button key={c.id} onClick={()=>openDash(c.id)} style={{textAlign:'left', background:'var(--bg-elev)', border:'1px solid var(--line)', borderRadius:'var(--radius-lg)', overflow:'hidden', transition:'all 150ms', display:'flex', flexDirection:'column', boxShadow:'var(--shadow-sm)'}}
+            onMouseEnter={e=>{e.currentTarget.style.borderColor='var(--ink-5)'; e.currentTarget.style.boxShadow='var(--shadow-md)'; e.currentTarget.style.transform='translateY(-1px)';}}
+            onMouseLeave={e=>{e.currentTarget.style.borderColor='var(--line)'; e.currentTarget.style.boxShadow='var(--shadow-sm)'; e.currentTarget.style.transform='none';}}>
+            <div style={{padding:'14px 16px 8px'}}>
+              <div style={{display:'flex', alignItems:'center', gap:8}}>
+                <div style={{fontSize:13.5, fontWeight:600, color:'var(--ink)'}}>{c.title}</div>
+                <span style={{fontSize:10, color:'var(--ink-3)', background:'var(--bg-sunken)', padding:'2px 7px', borderRadius:4, marginLeft:'auto', fontWeight:600, letterSpacing:'0.02em'}}>{c.cls}</span>
+              </div>
+              <div style={{fontSize:11.5, color:'var(--ink-3)', marginTop:5, lineHeight:1.45, display:'-webkit-box', WebkitLineClamp:2, WebkitBoxOrient:'vertical', overflow:'hidden', minHeight:33}}>{c.desc}</div>
+            </div>
+            <div style={{padding:'0 16px 8px', display:'flex', alignItems:'baseline', gap:8}}>
+              <div className="mono" style={{fontSize:20, fontWeight:700, letterSpacing:'-0.02em', color:'var(--ink)'}}>{c.kpi}</div>
+              <div style={{fontSize:11, color:c.delta.startsWith('-')?'var(--neg)':'var(--pos)', fontFamily:'var(--font-mono)', fontWeight:600}}>{c.delta}</div>
+            </div>
+            <div style={{height:60, marginTop:'auto', padding:'0 8px', display:'flex', alignItems:'flex-end'}}>
+              <CardPreview kind={c.preview} color={c.tint}/>
+            </div>
+            <div style={{padding:'8px 16px', borderTop:'1px solid var(--line-faint)', fontSize:10, color:'var(--ink-4)', fontFamily:'var(--font-mono)', letterSpacing:'0.04em', display:'flex', justifyContent:'space-between', textTransform:'uppercase', fontWeight:600}}>
+              <span>Updated {c.updated}</span>
+              <span style={{color:'var(--accent)'}}>Open →</span>
+            </div>
+          </button>
+        ))}
+      </div>
+
+      {/* Two-up chart row — Allocation History area + Allocation donut */}
+      <div style={{display:'grid', gridTemplateColumns:'2fr 1fr', gap:16}}>
+        <NovaPanel title="Allocation History" subtitle="by Asset Class" actions={<div style={{display:'flex', gap:4}}><NovaChip active>24M</NovaChip><NovaChip>YTD</NovaChip><NovaChip>3Y</NovaChip></div>}>
+          <NovaArea series={DATA.allocationHistory.series} labels={DATA.allocationHistory.labels} height={260}/>
+        </NovaPanel>
+        <NovaPanel title="Allocation" subtitle="Current snapshot">
+          <NovaDonut segments={[
+            {label:'Equities',         value:40.8, color:'var(--c1)'},
+            {label:'Corporate Bonds',  value:25.0, color:'var(--c2)'},
+            {label:'Government Bonds', value:12.2, color:'var(--c3)'},
+            {label:'Private Equity',   value:11.0, color:'var(--c4)'},
+            {label:'Hedge Funds',      value:8.0,  color:'var(--c5)'},
+            {label:'Other',            value:3.0,  color:'var(--c6)'},
+          ]} centerLabel="$2.83B" centerSub="Total MV"/>
+        </NovaPanel>
+      </div>
+
+      {/* Reports */}
+      <NovaPanel title="Recent Reports" subtitle="Saved analytics across all workspaces">
+        <div style={{margin:'-8px -6px 0', overflow:'auto'}}>
+          <table style={{width:'100%', borderCollapse:'collapse', fontSize:12}}>
+            <thead>
+              <tr style={{color:'var(--ink-4)', fontSize:10, textTransform:'uppercase', letterSpacing:'0.05em', background:'var(--bg-sunken)'}}>
+                <th style={nth}>Name</th>
+                <th style={nth}>Class</th>
+                <th style={nth}>Theme</th>
+                <th style={nth}>Owner</th>
+                <th style={{...nth, textAlign:'right'}}>Updated</th>
+                <th style={{...nth, textAlign:'right'}}></th>
+              </tr>
+            </thead>
+            <tbody>
+              {reports.map((r,i)=>(
+                <tr key={i} onClick={()=>openDash(r.id)} style={{borderTop:'1px solid var(--line-faint)', cursor:'pointer'}}
+                  onMouseEnter={e=>e.currentTarget.style.background='var(--bg-hover)'}
+                  onMouseLeave={e=>e.currentTarget.style.background=''}>
+                  <td style={{...ntd, color:'var(--accent)', fontWeight:600}}>{r.name}</td>
+                  <td style={{...ntd, color:'var(--ink-3)'}}><span style={{fontSize:10.5, padding:'2px 7px', border:'1px solid var(--line)', borderRadius:4}}>{r.cls}</span></td>
+                  <td style={{...ntd, color:'var(--ink-2)'}}>{r.theme}</td>
+                  <td style={{...ntd, color:'var(--ink-3)'}}>{r.owner}</td>
+                  <td style={{...ntd, textAlign:'right', color:'var(--ink-4)', fontFamily:'var(--font-mono)', fontSize:11}}>{r.updated}</td>
+                  <td style={{...ntd, textAlign:'right', color:'var(--ink-4)'}}>⋯</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </NovaPanel>
     </div>
   );
 }

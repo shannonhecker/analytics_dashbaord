@@ -92,16 +92,16 @@ function NovaApp() {
   };
 
   return (
-    <div style={{minHeight:'100vh', display:'flex', flexDirection:'column', background:'var(--bg)'}}>
-      <NovaTopBar active={screen} setActive={openScreen} onCmdK={()=>setCmdk(true)} theme={tweaks.theme} setTheme={(t)=>applyTweaks({theme:t})} onShare={()=>setShare(true)}/>
-      {screen !== 'home' && <NovaFilterBar title={title[screen]} subtitle={sub[screen]} filters={filters[screen]}/>}
-      <div style={{flex:1, display:'flex', flexDirection:'column', minHeight:0}} data-screen-label={`screen-${screen}`}>
+    <div style={{minHeight:'100vh', display:'flex', background:'var(--bg)', alignItems:'flex-start'}}>
+      <NovaLeftNav screen={screen} setScreen={openScreen} theme={tweaks.theme} setTheme={(t)=>applyTweaks({theme:t})} onCmdK={()=>setCmdk(true)} onShare={()=>setShare(true)}/>
+      <main style={{flex:1, minWidth:0, display:'flex', flexDirection:'column'}} data-screen-label={`screen-${screen}`}>
+        <NovaFilterBar title={title[screen]} subtitle={sub[screen]} filters={filters[screen]}/>
         {screen==='home' && <NovaHome openDash={openScreen}/>}
         {screen==='performance' && <NovaPerf/>}
         {screen==='risk' && <NovaRisk/>}
         {screen==='esg' && <NovaEsg/>}
         {screen==='issuer' && <NovaIssuer/>}
-      </div>
+      </main>
       {cmdkOpen && <NovaCmdK onClose={()=>setCmdk(false)} onNav={openScreen}/>}
       {shareOpen && <NovaShare onClose={()=>setShare(false)}/>}
       {editMode && <NovaTweaks tweaks={tweaks} setTweaks={applyTweaks} onClose={()=>setEdit(false)}/>}
