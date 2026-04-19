@@ -1,0 +1,98 @@
+/* AG Grid Quartz theme — overridden to match Carbon-derived locked palette.
+   Applied via the `.ag-theme-quartz.nova-grid` selector wrapper in NovaGrid. */
+.nova-grid {
+  --ag-background-color: var(--bg-elev);
+  --ag-foreground-color: var(--ink);
+  --ag-secondary-foreground-color: var(--ink-2);
+  --ag-disabled-foreground-color: var(--ink-4);
+
+  --ag-header-background-color: var(--bg-sunken);
+  --ag-header-foreground-color: var(--ink-3);
+  --ag-header-cell-hover-background-color: var(--bg-hover);
+  --ag-header-column-resize-handle-color: var(--line-strong);
+
+  --ag-odd-row-background-color: var(--bg-elev);
+  --ag-row-hover-color: var(--bg-hover);
+  --ag-selected-row-background-color: var(--accent-soft);
+
+  --ag-border-color: var(--line);
+  --ag-row-border-color: var(--line-faint);
+  --ag-cell-horizontal-border: solid transparent;
+
+  --ag-font-family: var(--font-ui);
+  --ag-font-size: 13px;
+
+  --ag-grid-size: 6px;
+  --ag-cell-horizontal-padding: 14px;
+
+  --ag-input-focus-border-color: var(--accent);
+  --ag-input-focus-box-shadow: 0 0 0 2px var(--accent-soft);
+  --ag-checkbox-checked-color: var(--accent);
+  --ag-range-selection-border-color: var(--accent);
+  --ag-range-selection-background-color: var(--accent-soft);
+
+  --ag-side-bar-panel-width: 260px;
+  --ag-control-panel-background-color: var(--bg-elev);
+  --ag-subheader-background-color: var(--bg-sunken);
+  --ag-subheader-toolbar-background-color: var(--bg-sunken);
+
+  --ag-icon-font-color: var(--ink-3);
+  --ag-icon-size: 14px;
+
+  --ag-tooltip-background-color: var(--bg-elev-2);
+
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Header tighter, uppercase like our other tables */
+.nova-grid .ag-header-cell-text {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Side panel tabs — sit on the right, collapsed by default */
+.nova-grid .ag-side-buttons {
+  background: var(--bg-sunken);
+  border-left: 1px solid var(--line);
+}
+.nova-grid .ag-side-button-button {
+  color: var(--ink-3);
+  padding: 12px 6px;
+  border: 0;
+  background: transparent;
+}
+.nova-grid .ag-side-button-button:hover {
+  background: var(--bg-hover);
+  color: var(--ink);
+}
+.nova-grid .ag-selected .ag-side-button-button {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-left: 2px solid var(--accent);
+}
+
+/* Tool panel headers */
+.nova-grid .ag-tool-panel-wrapper {
+  background: var(--bg-elev);
+}
+.nova-grid .ag-column-select-header,
+.nova-grid .ag-filter-toolpanel-header {
+  background: var(--bg-sunken);
+  border-bottom: 1px solid var(--line);
+  padding: 8px 12px;
+}
+
+/* Row hover/selection lift */
+.nova-grid .ag-row {
+  cursor: pointer;
+}
+.nova-grid .ag-row-hover {
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+/* AG Grid eval-mode watermark — leave as-is, it's a license signal. */

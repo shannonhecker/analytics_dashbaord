@@ -1,14 +1,5 @@
-// Shell — institutional-style left icon rail (sticky) + sticky sub-header.
-// No global top bar; nav lives in the rail.
-const { useState: useNS, useEffect: useNE, useRef: useNR } = React;
-
-function NovaLogo() {
-  return (
-    <div title="analytics_dashbaord" style={{display:'flex', alignItems:'center', justifyContent:'center', width:40, height:40, borderRadius:8, background:'var(--grad)'}}>
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 20 Q 12 4 20 20" stroke="white" strokeWidth="2.4" fill="none" strokeLinecap="round"/><circle cx="12" cy="12" r="2" fill="white"/></svg>
-    </div>
-  );
-}
+// Shell — sticky left icon rail + sticky sub-header + panel/chip primitives.
+import React from 'react';
 
 const NAV_ITEMS = [
   { id: 'home',        label: 'Dashboards',     icon: <path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z"/> },
@@ -18,7 +9,15 @@ const NAV_ITEMS = [
   { id: 'issuer',      label: 'Issuer',         icon: <path d="M3 21h18M5 21V7l7-4 7 4v14"/> },
 ];
 
-function NovaLeftNav({screen, setScreen, theme, setTheme, onCmdK, onShare}) {
+export function NovaLogo() {
+  return (
+    <div title="analytics_dashbaord" style={{display:'flex', alignItems:'center', justifyContent:'center', width:40, height:40, borderRadius:8, background:'var(--grad)'}}>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 20 Q 12 4 20 20" stroke="white" strokeWidth="2.4" fill="none" strokeLinecap="round"/><circle cx="12" cy="12" r="2" fill="white"/></svg>
+    </div>
+  );
+}
+
+export function NovaLeftNav({screen, setScreen, theme, setTheme, onCmdK, onShare}) {
   return (
     <aside style={{
       width:72, background:'var(--bg-elev)', borderRight:'1px solid var(--line)',
@@ -35,7 +34,7 @@ function NovaLeftNav({screen, setScreen, theme, setTheme, onCmdK, onShare}) {
             background: active ? 'var(--accent-soft)' : 'transparent',
             color: active ? 'var(--accent)' : 'var(--ink-3)',
             display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:3,
-            border: active ? '1px solid transparent' : '1px solid transparent',
+            border:'1px solid transparent',
             position:'relative', transition:'background 120ms, color 120ms',
           }}
           onMouseEnter={e=>{if(!active){e.currentTarget.style.background='var(--bg-hover)'; e.currentTarget.style.color='var(--ink-2)';}}}
@@ -47,24 +46,21 @@ function NovaLeftNav({screen, setScreen, theme, setTheme, onCmdK, onShare}) {
           </button>
         );
       })}
-
       <div style={{flex:1}}/>
-
-      {/* Bottom utilities */}
-      <NovaRailIcon onClick={onCmdK} title="Search (⌘K)"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></NovaRailIcon>
-      <NovaRailIcon onClick={onShare} title="Share"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="m16 6-4-4-4 4"/><path d="M12 2v13"/></NovaRailIcon>
-      <NovaRailIcon onClick={()=>setTheme(theme==='dark'?'light':'dark')} title="Theme">
+      <RailIcon onClick={onCmdK} title="Search (⌘K)"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></RailIcon>
+      <RailIcon onClick={onShare} title="Share"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="m16 6-4-4-4 4"/><path d="M12 2v13"/></RailIcon>
+      <RailIcon onClick={()=>setTheme(theme==='dark'?'light':'dark')} title="Theme">
         {theme==='dark'
           ? <><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></>
           : <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>}
-      </NovaRailIcon>
+      </RailIcon>
       <div style={{height:6}}/>
       <button title="Maya Klein" style={{width:36, height:36, borderRadius:'50%', background:'var(--grad)', color:'white', display:'flex', alignItems:'center', justifyContent:'center', fontSize:11, fontWeight:700}}>MK</button>
     </aside>
   );
 }
 
-function NovaRailIcon({children, onClick, title}) {
+function RailIcon({children, onClick, title}) {
   return (
     <button onClick={onClick} title={title} style={{
       width:40, height:40, display:'flex', alignItems:'center', justifyContent:'center',
@@ -78,8 +74,7 @@ function NovaRailIcon({children, onClick, title}) {
   );
 }
 
-// Sticky sub-header — title + filters + Export
-function NovaFilterBar({title, subtitle, filters}) {
+export function NovaFilterBar({title, subtitle, filters}) {
   return (
     <div style={{padding:'20px 28px 16px', borderBottom:'1px solid var(--line)', background:'var(--bg-elev)', position:'sticky', top:0, zIndex:10}}>
       <div style={{display:'flex', alignItems:'flex-end', gap:16}}>
@@ -106,8 +101,7 @@ function NovaFilter({label, value}) {
   );
 }
 
-// Card panel — used everywhere for chart/data containers
-function NovaPanel({title, subtitle, actions, children, padded=true, glow, noHead, seeAll}) {
+export function NovaPanel({title, subtitle, actions, children, padded=true, noHead, seeAll}) {
   return (
     <div style={{
       background:'var(--bg-elev)',
@@ -133,7 +127,7 @@ function NovaPanel({title, subtitle, actions, children, padded=true, glow, noHea
   );
 }
 
-function NovaChip({children, active, onClick}) {
+export function NovaChip({children, active, onClick}) {
   return (
     <button onClick={onClick} style={{
       padding:'5px 10px', fontSize:11.5, borderRadius:4,
@@ -144,9 +138,3 @@ function NovaChip({children, active, onClick}) {
     }}>{children}</button>
   );
 }
-
-// NovaTopBar / NovaIcon kept as no-op stubs in case anything imports them.
-function NovaTopBar() { return null; }
-function NovaIcon() { return null; }
-
-Object.assign(window, { NovaTopBar, NovaLeftNav, NovaFilterBar, NovaFilter, NovaPanel, NovaIcon, NovaLogo, NovaChip });

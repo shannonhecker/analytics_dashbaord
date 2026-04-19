@@ -1,7 +1,7 @@
 // Seeded data for all screens
 const rng = (seed) => { let s=seed; return () => { s = (s*9301 + 49297) % 233280; return s/233280; }; };
 
-function series(n, base=0, vol=1, seed=1, drift=0) {
+export function series(n, base=0, vol=1, seed=1, drift=0) {
   const r = rng(seed);
   const out = [];
   let v = base;
@@ -19,7 +19,7 @@ function months(n=12, startM=1, startY=24) {
   return out;
 }
 
-const DATA = {
+export const DATA = {
   portfolios: [
     { name:'JPM US Aggregate',     ccy:'USD', mv:1257631011.32, pct:100.00, pnl: 3.10, bm: 3.13, excess: -0.03, ytd: 5.18, ytdbm: 3.55, ytdx: 2.13, spark: series(24, 100, 1.2, 4, 0.3)},
     { name:'Equity Global I',      ccy:'GBP',  mv:430951591.32, pct:100.00, pnl: 3.17, bm: 3.35, excess: -0.18, ytd: 8.85, ytdbm: 9.88, ytdx: -1.03, spark: series(24, 100, 2.1, 5, 0.4)},
@@ -31,16 +31,6 @@ const DATA = {
     { name:'Private Equity C',     ccy:'USD',  mv:156652851.24, pct:100.00, pnl: 0.60, bm: 0.30, excess: 0.10, ytd: 1.14, ytdbm: 1.30, ytdx: -0.16, spark: series(24, 100, 2.8, 11, 0.8)},
     { name:'EM Sovereign Debt',    ccy:'USD',  mv:142180003.10, pct:100.00, pnl: 2.14, bm: 1.98, excess: 0.16, ytd: 4.72, ytdbm: 4.30, ytdx: 0.42, spark: series(24, 100, 1.1, 12, 0.3)},
     { name:'Commodities Alpha',    ccy:'USD',  mv:98420113.44,  pct:100.00, pnl:-1.22, bm:-0.91, excess:-0.31, ytd:-3.48, ytdbm:-2.20, ytdx: -1.28, spark: series(24, 100, 3.0, 13, -0.4)},
-  ],
-  dimBreakdown: [
-    { dim:'Total',            mv: 992518.89, ret1m: 3.10, ret3m: -5.68, ytd: 2.56, ret5y: 2.56 },
-    { dim:'Equities',         mv: 404947.71, ret1m: 3.10, ret3m: -6.04, ytd: 2.30, ret5y: 2.30 },
-    { dim:'Corporate Bonds',  mv: 248129.72, ret1m: 1.70, ret3m: -2.03, ytd: 1.80, ret5y: 1.80 },
-    { dim:'Government Bonds', mv: 124060.80, ret1m: 3.10, ret3m: -7.68, ytd: -0.14, ret5y: -0.14 },
-    { dim:'Private Equity',   mv: 87250.43,  ret1m: 0.40, ret3m: 1.20, ytd: 2.10, ret5y: 3.40 },
-    { dim:'Hedge Funds',      dim2:'',       mv: 82100.11, ret1m: 1.80, ret3m: 2.60, ytd: 4.90, ret5y: 5.80 },
-    { dim:'Real Estate',      mv: 45050.22,  ret1m: -0.90, ret3m: -1.80, ytd: 0.50, ret5y: 1.60 },
-    { dim:'Other',            mv: 215378.60, ret1m: 1.03, ret3m: 2.34, ytd: 2.34, ret5y: 2.34 },
   ],
   allocationHistory: {
     labels: Array.from({length:24},(_,i)=>`'${String(2*i+1).padStart(2,'0')}`),
@@ -100,12 +90,6 @@ const DATA = {
     ],
     line: { name:'Excess', data:[-0.13, -0.82, -0.30, -0.50, -0.70, -0.70], color:'var(--c4)' }
   },
-  esgAccounts: [
-    { name:'Total',            mv:94164911, covered:73094058, nav:93144911, pos:789, iss:780, wa: 5.55, e: 6.75, s:3.21, g:0.30, gov:6.28 },
-    { name:'Demo (Equities)',  mv:29079138, covered:20072035, nav:30074198, pos:160, iss: 50, wa: 0.00, e: 4.17, s:8.05, g:1.01, gov:0.00 },
-    { name:'Demo (Corp Bonds)', mv:28891677, covered:22885715, nav:27891677, pos:135, iss: 122, wa: 6.05, e: 6.79, s:7.52, g:3.21, gov:8.65 },
-    { name:'Demo (Govt Bonds)', mv:35572096, covered:31538315, nav:34572096, pos:299, iss: 299, wa: 5.10, e: 6.90, s:4.37, g:4.01, gov:9.13 },
-  ],
   sectorBreakdown: [
     { sector:'Information Tech',  weight: 0.22, wk:7.10, env:9.25, soc:8.10, gov:7.19 },
     { sector:'Financials',        weight: 0.18, wk:6.95, env:7.52, soc:5.57, gov:5.87 },
@@ -145,11 +129,6 @@ const DATA = {
       { name:'Orion Holdings',    score:85, e:85, s:85,  g:85 },
       { name:'Sable & Co.',       score:82, e:80, s:80,  g:90 },
     ],
-    ratingHistory: {
-      labels: ['Q1 23','Q2 23','Q3 23','Q4 23','Q1 24'],
-      data: [ {rating:'BB', score:65}, {rating:'BB', score:68}, {rating:'BBB', score:75}, {rating:'A', score:82}, {rating:'AA', score:90} ]
-    },
-    exposure: series(24, 42, 4, 41, 0.2),
     revenue: series(12, 2800, 120, 42, 80),
   },
   varTrend: {
@@ -178,27 +157,12 @@ const DATA = {
       { label:'P&L+',      value: 29,  color:'var(--c1)' },
     ]
   },
-  flow: {
-    left: [
-      { label:'Equities',        value:400, color:'var(--c1)' },
-      { label:'Bonds',           value:250, color:'var(--c3)' },
-      { label:'Private Assets',  value:180, color:'var(--c5)' },
-      { label:'Cash',            value:80,  color:'var(--c6)' },
-    ],
-    right: [
-      { label:'US',    value:350, color:'var(--c1)' },
-      { label:'EU',    value:240, color:'var(--c3)' },
-      { label:'APAC',  value:180, color:'var(--c5)' },
-      { label:'EM',    value:90,  color:'var(--c6)' },
-      { label:'Other', value:50,  color:'var(--c2)' },
-    ],
-    links: [
-      {from:0,to:0, value:180}, {from:0,to:1, value:120}, {from:0,to:2, value:80}, {from:0,to:3, value:20},
-      {from:1,to:0, value:100}, {from:1,to:1, value:80}, {from:1,to:2, value:40}, {from:1,to:4, value:30},
-      {from:2,to:0, value:60},  {from:2,to:1, value:40}, {from:2,to:2, value:60}, {from:2,to:3, value:20},
-      {from:3,to:0, value:10},  {from:3,to:3, value:50}, {from:3,to:4, value:20},
-    ]
-  },
+  reports: [
+    { id:'esg',         name:'Sustainable Portfolio Report', cls:'Holdings', theme:'Sustainable Investment', updated:'1 hr ago',   owner:'Maya Klein' },
+    { id:'performance', name:'Performance Report',           cls:'Holdings', theme:'Performance',            updated:'2 min ago',  owner:'Maya Klein' },
+    { id:'issuer',      name:'Issuer Report',                cls:'Company',  theme:'Research',               updated:'22 min ago', owner:'J. Park'    },
+    { id:'risk',        name:'Risk Report',                  cls:'Holdings', theme:'Risk',                   updated:'5 min ago',  owner:'D. Oduya'   },
+    { id:'esg',         name:'Carbon Report',                cls:'Company',  theme:'Sustainable Investment', updated:'Yesterday',  owner:'A. Ventura' },
+    { id:'performance', name:'Attribution Report',           cls:'Holdings', theme:'Performance',            updated:'Yesterday',  owner:'Maya Klein' },
+  ],
 };
-
-Object.assign(window, { DATA });
