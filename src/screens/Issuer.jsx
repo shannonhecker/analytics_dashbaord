@@ -1,6 +1,7 @@
 import React from 'react';
 import { NovaPanel } from '../components/shell.jsx';
-import { NovaBar, NovaGauge } from '../components/charts.jsx';
+import { HxBar } from '../components/highcharts/HxBar.jsx';
+import { HxGauge } from '../components/highcharts/HxGauge.jsx';
 import { PillarRow } from '../components/kpi.jsx';
 import { NovaGrid } from '../components/NovaGrid.jsx';
 import { DATA } from '../data.js';
@@ -41,7 +42,7 @@ export function Issuer() {
             <div style={{fontSize:11, color:'var(--ink-3)', marginTop:6}}>Industry mode: <span style={{fontWeight:500, color:'var(--ink-2)'}}>B</span></div>
           </div>
         </NovaPanel>
-        <NovaPanel title="ESG Score" subtitle="Weighted"><NovaGauge value={9.0} max={10} label="ESG" color="var(--accent)" large/></NovaPanel>
+        <NovaPanel title="ESG Score" subtitle="Weighted"><HxGauge value={9.0} max={10} label="ESG" color="var(--accent)" large/></NovaPanel>
         <NovaPanel title="Pillar Scores">
           <div style={{display:'flex', flexDirection:'column', gap:14, padding:'4px'}}>
             <PillarRow label="E" value={d.e} color="var(--c2)"/>
@@ -53,7 +54,7 @@ export function Issuer() {
 
       <div style={{display:'grid', gridTemplateColumns:'2fr 1fr', gap:16}}>
         <NovaPanel title="Revenue & Exposure" subtitle="Quarterly, $M">
-          <NovaBar groups={['Q1 23','Q2 23','Q3 23','Q4 23','Q1 24','Q2 24','Q3 24','Q4 24','Q1 25','Q2 25','Q3 25','Q4 25']} series={[{name:'Revenue', data: d.revenue, color:'var(--c1)'}]} compareLine={{name:'Exposure', data: d.revenue.map((_,i)=>2800 + i*50 + (i%3)*30), color:'var(--c4)'}} height={260}/>
+          <HxBar groups={['Q1 23','Q2 23','Q3 23','Q4 23','Q1 24','Q2 24','Q3 24','Q4 24','Q1 25','Q2 25','Q3 25','Q4 25']} series={[{name:'Revenue', data: d.revenue, color:'var(--c1)'}]} compareLine={{name:'Exposure', data: d.revenue.map((_,i)=>2800 + i*50 + (i%3)*30), color:'var(--c4)'}} height={260}/>
         </NovaPanel>
         <NovaPanel title="Peer Comparison" padded={false}>
           <NovaGrid dataset="peers" columnDefs={PEER_COLS} height={300}/>

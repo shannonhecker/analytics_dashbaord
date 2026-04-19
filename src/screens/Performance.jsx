@@ -1,6 +1,8 @@
 import React from 'react';
 import { NovaPanel, NovaChip } from '../components/shell.jsx';
-import { NovaArea, NovaBar, NovaDonut } from '../components/charts.jsx';
+import { HxArea } from '../components/highcharts/HxArea.jsx';
+import { HxBar } from '../components/highcharts/HxBar.jsx';
+import { HxDonut } from '../components/highcharts/HxDonut.jsx';
 import { HeroKpi } from '../components/kpi.jsx';
 import { NovaGrid } from '../components/NovaGrid.jsx';
 import { TickerBadgeCell, MoneyCell, DeltaCell, SparklineCell } from '../components/cell-renderers.jsx';
@@ -35,10 +37,10 @@ export function Performance() {
 
       <div style={{display:'grid', gridTemplateColumns:'2fr 1fr', gap:16}}>
         <NovaPanel title="Allocation History" subtitle="by Asset Class">
-          <NovaArea series={DATA.allocationHistory.series} labels={DATA.allocationHistory.labels} height={260}/>
+          <HxArea series={DATA.allocationHistory.series} labels={DATA.allocationHistory.labels} height={260}/>
         </NovaPanel>
         <NovaPanel title="Allocation" subtitle="Current snapshot">
-          <NovaDonut segments={[
+          <HxDonut segments={[
             {label:'Equities',   value:40.8, color:'var(--c1)'},
             {label:'Corp Bonds', value:25.0, color:'var(--c2)'},
             {label:'Govt Bonds', value:12.2, color:'var(--c3)'},
@@ -50,10 +52,10 @@ export function Performance() {
 
       <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:16}}>
         <NovaPanel title="Returns by Account" subtitle="vs MSCI World">
-          <NovaBar groups={DATA.returnsByAccount.labels} series={DATA.returnsByAccount.data} compareLine={DATA.returnsByAccount.line} height={240}/>
+          <HxBar groups={DATA.returnsByAccount.labels} series={DATA.returnsByAccount.data} compareLine={DATA.returnsByAccount.line} height={240}/>
         </NovaPanel>
         <NovaPanel title="Investment Trend" subtitle="vs Fund Index">
-          <NovaBar groups={DATA.varTrend.labels} series={DATA.varTrend.series} compareLine={DATA.varTrend.line} height={240}/>
+          <HxBar groups={DATA.varTrend.labels} series={DATA.varTrend.series} compareLine={DATA.varTrend.line} height={240}/>
         </NovaPanel>
       </div>
     </div>

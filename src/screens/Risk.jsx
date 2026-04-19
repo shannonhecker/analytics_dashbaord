@@ -1,6 +1,7 @@
 import React from 'react';
 import { NovaPanel } from '../components/shell.jsx';
-import { NovaArea, NovaBar } from '../components/charts.jsx';
+import { HxArea } from '../components/highcharts/HxArea.jsx';
+import { HxBar } from '../components/highcharts/HxBar.jsx';
 import { HeroKpi } from '../components/kpi.jsx';
 import { NovaGrid } from '../components/NovaGrid.jsx';
 import { MoneyCell, HeatmapCell } from '../components/cell-renderers.jsx';
@@ -34,15 +35,15 @@ export function Risk() {
 
       <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:16}}>
         <NovaPanel title="Risk Contribution" subtitle="By risk type">
-          <NovaBar groups={DATA.riskContribution.labels} series={DATA.riskContribution.data} height={250}/>
+          <HxBar groups={DATA.riskContribution.labels} series={DATA.riskContribution.data} height={250}/>
         </NovaPanel>
         <NovaPanel title="Top 10 Issuers" subtitle="By exposure">
-          <NovaBar groups={DATA.topIssuers.labels} series={DATA.topIssuers.data} height={250}/>
+          <HxBar groups={DATA.topIssuers.labels} series={DATA.topIssuers.data} height={250}/>
         </NovaPanel>
       </div>
 
       <NovaPanel title="Value at Risk" subtitle="Time series, 24M">
-        <NovaArea series={DATA.varHistory.series} labels={DATA.varHistory.labels} height={260}/>
+        <HxArea series={DATA.varHistory.series} labels={DATA.varHistory.labels} height={260}/>
       </NovaPanel>
     </div>
   );

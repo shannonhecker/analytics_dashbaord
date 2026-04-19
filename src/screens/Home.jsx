@@ -1,6 +1,8 @@
 import React from 'react';
 import { NovaPanel, NovaChip } from '../components/shell.jsx';
-import { NovaArea, NovaDonut, CardPreview } from '../components/charts.jsx';
+import { CardPreview } from '../components/charts.jsx';
+import { HxArea } from '../components/highcharts/HxArea.jsx';
+import { HxDonut } from '../components/highcharts/HxDonut.jsx';
 import { HeroKpi } from '../components/kpi.jsx';
 import { NovaGrid } from '../components/NovaGrid.jsx';
 import { LinkCell, ChipCell } from '../components/cell-renderers.jsx';
@@ -60,10 +62,10 @@ export function Home({openDash}) {
 
       <div style={{display:'grid', gridTemplateColumns:'2fr 1fr', gap:16}}>
         <NovaPanel title="Allocation History" subtitle="by Asset Class" actions={<div style={{display:'flex', gap:4}}><NovaChip active>24M</NovaChip><NovaChip>YTD</NovaChip><NovaChip>3Y</NovaChip></div>}>
-          <NovaArea series={DATA.allocationHistory.series} labels={DATA.allocationHistory.labels} height={260}/>
+          <HxArea series={DATA.allocationHistory.series} labels={DATA.allocationHistory.labels} height={260}/>
         </NovaPanel>
         <NovaPanel title="Allocation" subtitle="Current snapshot">
-          <NovaDonut segments={[
+          <HxDonut segments={[
             {label:'Equities',         value:40.8, color:'var(--c1)'},
             {label:'Corporate Bonds',  value:25.0, color:'var(--c2)'},
             {label:'Government Bonds', value:12.2, color:'var(--c3)'},
