@@ -1,0 +1,147 @@
+/* analytics_dashbaord — TradingView-inspired tokens. Light default, dark toggle. */
+:root {
+  /* Light theme (default — matches tradingview.com/markets) */
+  --bg: #ffffff;
+  --bg-elev: #ffffff;
+  --bg-elev-2: #f8f9fb;
+  --bg-sunken: #f0f3fa;
+  --bg-hover: #f0f3fa;
+  --bg-active: #e3e8f0;
+  --line: #e0e3eb;
+  --line-strong: #c2c8d4;
+  --line-faint: #eef0f5;
+
+  --ink: #131722;
+  --ink-2: #2a2e39;
+  --ink-3: #5d606b;
+  --ink-4: #868993;
+  --ink-5: #b2b5be;
+
+  /* IBM Carbon Design System — primary action blue */
+  --accent-h: 220;
+  --accent: #0f62fe;        /* Carbon Blue 60 */
+  --accent-2: #4589ff;      /* Carbon Blue 60 (dark variant) */
+  --accent-soft: rgba(15, 98, 254, 0.10);
+  --accent-glow: rgba(15, 98, 254, 0.20);
+  --grad: linear-gradient(135deg, #0f62fe, #4589ff);
+  --grad-v: linear-gradient(180deg, rgba(15, 98, 254, 0.10), rgba(15, 98, 254, 0));
+
+  /* Carbon alert colors — pos/neg semantic */
+  --pos: #24a148;            /* Carbon Green 50 */
+  --pos-soft: rgba(36, 161, 72, 0.10);
+  --neg: #da1e28;            /* Carbon Red 60 */
+  --neg-soft: rgba(218, 30, 40, 0.10);
+
+  /* Categorical palette — IBM Carbon, LIGHT theme (white bg).
+     Sequence curated by Carbon for maximum neighbor contrast.
+     Mapping: c1=Equities, c2=Corp Bonds, c3=Govt Bonds,
+     c4=Private Eq, c5=Hedge Funds, c6=Cash/Other.
+     Colors avoid red/green to prevent collision with pos/neg semantics. */
+  --c1: #6929c4;  /* Carbon Purple 70 */
+  --c2: #1192e8;  /* Carbon Cyan 50 */
+  --c3: #005d5d;  /* Carbon Teal 70 */
+  --c4: #9f1853;  /* Carbon Magenta 70 */
+  --c5: #002d9c;  /* Carbon Blue 80 */
+  --c6: #8d8d8d;  /* Carbon Cool Gray 50 */
+  --c7: #ee538b;  /* Carbon Magenta 50 (extra) */
+  --c8: #b28600;  /* Carbon Yellow 50 (extra) */
+
+  --font-ui: -apple-system, BlinkMacSystemFont, 'Trebuchet MS', Roboto, Ubuntu, sans-serif;
+  --font-mono: 'Geist Mono', 'JetBrains Mono', ui-monospace, monospace;
+  --font-display: -apple-system, BlinkMacSystemFont, 'Trebuchet MS', Roboto, Ubuntu, sans-serif;
+
+  --row-h: 36px;
+  --pad: 20px;
+  --pad-sm: 12px;
+  --pad-xs: 8px;
+
+  --fs-xs: 11px;
+  --fs-sm: 12px;
+  --fs-md: 13px;
+  --fs-lg: 15px;
+  --fs-xl: 20px;
+  --fs-2xl: 28px;
+  --fs-3xl: 40px;
+
+  --radius-sm: 4px;
+  --radius: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+
+  --shadow-sm: 0 1px 2px rgba(19, 23, 34, 0.04);
+  --shadow-md: 0 2px 6px rgba(19, 23, 34, 0.06), 0 1px 2px rgba(19, 23, 34, 0.04);
+  --shadow-pop: 0 16px 48px -12px rgba(19, 23, 34, 0.18), 0 4px 12px rgba(19, 23, 34, 0.08);
+  --shadow-glow: 0 0 0 1px rgba(41, 98, 255, 0.16);
+}
+
+[data-theme="dark"] {
+  /* Carbon-style dark surfaces — g100 / g90 spec */
+  --bg: #161616;            /* Carbon Gray 100 */
+  --bg-elev: #262626;       /* Carbon Gray 90 */
+  --bg-elev-2: #393939;     /* Carbon Gray 80 */
+  --bg-sunken: #161616;
+  --bg-hover: #353535;
+  --bg-active: #525252;
+  --line: #393939;          /* Carbon Gray 80 */
+  --line-strong: #525252;
+  --line-faint: #2c2c2c;
+
+  --ink: #f4f4f4;           /* Carbon Gray 10 */
+  --ink-2: #c6c6c6;         /* Carbon Gray 30 */
+  --ink-3: #a8a8a8;         /* Carbon Gray 40 */
+  --ink-4: #8d8d8d;         /* Carbon Gray 50 */
+  --ink-5: #6f6f6f;
+
+  /* Carbon dark accent + alerts */
+  --accent: #4589ff;        /* Carbon Blue 60 (dark) */
+  --accent-2: #78a9ff;      /* Carbon Blue 50 */
+  --accent-soft: rgba(69, 137, 255, 0.18);
+  --accent-glow: rgba(69, 137, 255, 0.32);
+  --grad: linear-gradient(135deg, #4589ff, #78a9ff);
+
+  --pos: #42be65;            /* Carbon Green 40 */
+  --pos-soft: rgba(66, 190, 101, 0.16);
+  --neg: #fa4d56;            /* Carbon Red 50 */
+  --neg-soft: rgba(250, 77, 86, 0.16);
+
+  /* Categorical palette — Carbon DARK theme spec.
+     Lighter weights tuned for contrast on Gray 90/100 surfaces. */
+  --c1: #8a3ffc;  /* Carbon Purple 60 */
+  --c2: #33b1ff;  /* Carbon Cyan 40 */
+  --c3: #007d79;  /* Carbon Teal 60 */
+  --c4: #ff7eb6;  /* Carbon Magenta 40 */
+  --c5: #4589ff;  /* Carbon Blue 60 */
+  --c6: #a8a8a8;  /* Carbon Gray 40 */
+  --c7: #d12771;  /* Carbon Magenta 60 */
+  --c8: #d2a106;  /* Carbon Yellow 30 */
+
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.35);
+  --shadow-md: 0 6px 20px -4px rgba(0,0,0,.5), 0 2px 6px rgba(0,0,0,.3);
+  --shadow-pop: 0 20px 60px -10px rgba(0,0,0,.8), 0 8px 20px rgba(0,0,0,.5);
+}
+
+[data-density="compact"] {
+  --row-h: 30px;
+  --pad: 14px;
+  --pad-sm: 10px;
+  --fs-sm: 11.5px;
+  --fs-md: 12.5px;
+}
+
+* { box-sizing: border-box; }
+html, body { margin:0; padding:0; background: var(--bg); color: var(--ink); font-family: var(--font-ui); font-size: var(--fs-md); -webkit-font-smoothing:antialiased; }
+button { font:inherit; color:inherit; background:none; border:0; cursor:pointer; padding:0; }
+input, select { font:inherit; color:inherit; }
+.mono { font-family:var(--font-mono); font-feature-settings:"tnum","zero"; letter-spacing:-0.005em; }
+.num { font-family:var(--font-mono); font-feature-settings:"tnum","zero"; text-align:right; font-variant-numeric:tabular-nums; }
+.pos { color:var(--pos); }
+.neg { color:var(--neg); }
+.muted { color:var(--ink-3); }
+.grad-text { background: var(--grad); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; color:transparent; }
+
+::-webkit-scrollbar { width:10px; height:10px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--line-strong); border-radius:5px; border:2px solid var(--bg); }
+::-webkit-scrollbar-thumb:hover { background:var(--ink-5); }
+
+@keyframes pulse-glow { 0%,100% { opacity:0.6; } 50% { opacity:1; } }
