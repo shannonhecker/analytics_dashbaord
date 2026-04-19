@@ -74,131 +74,286 @@ function CardPreview({kind, color='var(--accent)'}) {
   return null;
 }
 
+// --- Section heading helper (TradingView style) ---
+function SectionHead({title, subtitle, seeAll, onSeeAll}) {
+  return (
+    <div style={{display:'flex', alignItems:'flex-end', justifyContent:'space-between', marginBottom:14}}>
+      <div>
+        <h2 style={{margin:0, fontSize:22, fontWeight:700, letterSpacing:'-0.02em', color:'var(--ink)'}}>{title}</h2>
+        {subtitle && <div style={{fontSize:13, color:'var(--ink-3)', marginTop:4}}>{subtitle}</div>}
+      </div>
+      {seeAll && <button onClick={onSeeAll} style={{fontSize:13, color:'var(--accent)', fontWeight:500, display:'flex', alignItems:'center', gap:4}}>See all <span style={{fontSize:14}}>›</span></button>}
+    </div>
+  );
+}
+
+// --- Ticker pill (logo circle + name + price + delta), TradingView "indices" style ---
+function TickerPill({code, name, sub, price, delta, spark, color, onClick}) {
+  const up = delta >= 0;
+  return (
+    <button onClick={onClick} style={{
+      display:'flex', alignItems:'center', gap:12, padding:'14px 16px',
+      background:'var(--bg-elev)', border:'1px solid var(--line)', borderRadius:8,
+      width:'100%', textAlign:'left', transition:'all 120ms',
+    }}
+      onMouseEnter={e=>{e.currentTarget.style.borderColor='var(--ink-5)'; e.currentTarget.style.boxShadow='var(--shadow-md)';}}
+      onMouseLeave={e=>{e.currentTarget.style.borderColor='var(--line)'; e.currentTarget.style.boxShadow='none';}}
+    >
+      <div style={{width:36, height:36, borderRadius:'50%', background:color||'var(--accent)', color:'white', display:'flex', alignItems:'center', justifyContent:'center', fontSize:11, fontWeight:700, flexShrink:0, fontFamily:'var(--font-mono)', letterSpacing:'-0.02em'}}>{code}</div>
+      <div style={{flex:1, minWidth:0}}>
+        <div style={{fontSize:13, fontWeight:600, color:'var(--ink)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}}>{name}</div>
+        {sub && <div style={{fontSize:11, color:'var(--ink-4)', marginTop:1}}>{sub}</div>}
+      </div>
+      <div style={{textAlign:'right', flexShrink:0}}>
+        <div className="mono" style={{fontSize:14, fontWeight:700, color:'var(--ink)'}}>{price}</div>
+        <div className="mono" style={{fontSize:11.5, color: up?'var(--pos)':'var(--neg)', fontWeight:600, marginTop:2}}>{up?'+':''}{delta.toFixed(2)}%</div>
+      </div>
+    </button>
+  );
+}
+
 function NovaHome({openDash}) {
-  const [cat, setCat] = React.useState('All');
-  const cards = [
-    { id:'performance', title:'Performance', cls:'Holdings', theme:'Performance', desc:'Portfolio returns, attribution, and benchmark comparison across asset classes.', updated:'2 min ago', kpi:'+5.18%', delta:'+2.13pts', preview:'area' },
-    { id:'risk', title:'Risk', cls:'Holdings', theme:'Risk', desc:'VaR, CVaR, contribution analysis, issuer exposure, currency breakdown.', updated:'5 min ago', kpi:'$46.3M', delta:'-0.12%', preview:'bars' },
-    { id:'esg', title:'Sustainability', cls:'Holdings', theme:'ESG', desc:'ESG scoring, climate alignment, portfolio emissions, sector contribution.', updated:'1 hr ago', kpi:'5.50', delta:'+0.24pts', preview:'gauge' },
-    { id:'issuer', title:'Issuer Detail', cls:'Company', theme:'Research', desc:'Single-issuer deep dive with peer comparison and scoring history.', updated:'22 min ago', kpi:'AA', delta:'+2 notch', preview:'donut' },
+  // Map portfolios → ticker entries using their actual data
+  const colors = ['var(--c1)','var(--c2)','var(--c4)','var(--c5)','var(--c6)','var(--c7)','var(--c3)','var(--c8)'];
+  const portfolios = DATA.portfolios.slice(0, 8).map((p, i) => ({
+    ...p,
+    code: p.name.split(' ').map(w=>w[0]).join('').slice(0,3).toUpperCase(),
+    color: colors[i % colors.length],
+  }));
+
+  // Featured strip — TradingView "Indices" pattern
+  const featured = [
+    { id:'performance', code:'PRF', name:'Performance',    sub:'Returns & Attribution',   price:'+5.18%', delta: 2.13, color:'var(--c1)' },
+    { id:'risk',        code:'RSK', name:'Risk',           sub:'VaR · CVaR · Stress',     price:'$46.3M', delta:-0.12, color:'var(--c4)' },
+    { id:'esg',         code:'ESG', name:'Sustainability', sub:'ESG · Climate · Pillars', price:'5.50',   delta: 0.24, color:'var(--c2)' },
+    { id:'issuer',      code:'MRD', name:'Issuer Detail',  sub:'Single-name · Peers',     price:'AA',     delta: 1.10, color:'var(--c5)' },
   ];
-  const allReports = [
-    { id:'esg', name:'Sustainable Portfolio Report', cls:'Holdings', theme:'Sustainable Investment', desc:'ESG & Climate Portfolio Analytics', updated:'1 hr ago', owner:'Maya Klein' },
-    { id:'performance', name:'Performance Report', cls:'Holdings', theme:'Performance', desc:'Monthly performance package — IPS ready', updated:'2 min ago', owner:'Maya Klein' },
-    { id:'issuer', name:'Issuer Report', cls:'Company', theme:'Research', desc:'Single-name deep dive', updated:'22 min ago', owner:'J. Park' },
-    { id:'risk', name:'Risk Report', cls:'Holdings', theme:'Risk', desc:'VaR / stress tests / factor exposures', updated:'5 min ago', owner:'D. Oduya' },
-    { id:'esg', name:'Screening Report', cls:'Company', theme:'Screening', desc:'Negative/positive screening outputs', updated:'3 hr ago', owner:'Maya Klein' },
-    { id:'esg', name:'Carbon Report', cls:'Company', theme:'Sustainable Investment', desc:'Scope 1/2/3 scorecard', updated:'Yesterday', owner:'A. Ventura' },
-    { id:'performance', name:'Attribution Report', cls:'Holdings', theme:'Performance', desc:'Brinson attribution', updated:'Yesterday', owner:'Maya Klein' },
-    { id:'risk', name:'Liquidity Report', cls:'Holdings', theme:'Risk', desc:'Time-to-liquidate analysis', updated:'2 days ago', owner:'D. Oduya' },
+
+  // Top issuers
+  const issuers = [
+    { code:'AXS', name:'Apex Systems',        sub:'US · Tech',         price:'4.21%', delta:  6.4, spark: series(24,100,1.2,11), color:'var(--c1)' },
+    { code:'CDR', name:'Calder Industries',   sub:'US · Industrials',  price:'3.87%', delta: -1.2, spark: series(24,100,1.0,12), color:'var(--c4)' },
+    { code:'MRD', name:'Meridian Industries', sub:'US · Industrials',  price:'3.42%', delta:  2.8, spark: series(24,100,0.9,13), color:'var(--c5)' },
+    { code:'ORN', name:'Orion Holdings',      sub:'EU · Materials',    price:'2.95%', delta:  0.4, spark: series(24,100,1.4,14), color:'var(--c6)' },
+    { code:'SBL', name:'Sable & Co.',         sub:'UK · Financials',   price:'2.61%', delta: -2.1, spark: series(24,100,1.3,15), color:'var(--c2)' },
+    { code:'NVL', name:'Novalis Group',       sub:'EU · Healthcare',   price:'2.23%', delta:  3.1, spark: series(24,100,0.8,16), color:'var(--c7)' },
   ];
-  const cats = ['All','Holdings','Company'];
-  const filtered = cat==='All' ? allReports : allReports.filter(r=>r.cls===cat);
+
+  // Reports
+  const reports = [
+    { id:'esg',         name:'Sustainable Portfolio Report', cls:'Holdings', theme:'Sustainable Investment', updated:'1 hr ago',   owner:'Maya Klein' },
+    { id:'performance', name:'Performance Report',           cls:'Holdings', theme:'Performance',            updated:'2 min ago',  owner:'Maya Klein' },
+    { id:'issuer',      name:'Issuer Report',                cls:'Company',  theme:'Research',               updated:'22 min ago', owner:'J. Park'    },
+    { id:'risk',        name:'Risk Report',                  cls:'Holdings', theme:'Risk',                   updated:'5 min ago',  owner:'D. Oduya'   },
+    { id:'esg',         name:'Carbon Report',                cls:'Company',  theme:'Sustainable Investment', updated:'Yesterday',  owner:'A. Ventura' },
+    { id:'performance', name:'Attribution Report',           cls:'Holdings', theme:'Performance',            updated:'Yesterday',  owner:'Maya Klein' },
+  ];
 
   return (
-    <div style={{flex:1, overflow:'auto', padding:'28px 32px'}}>
-      {/* Landing hero */}
-      <div style={{marginBottom:28}}>
-        <div style={{fontSize:11, color:'var(--ink-4)', textTransform:'uppercase', letterSpacing:'0.1em', fontWeight:500, marginBottom:6}}>Welcome back, Maya</div>
-        <h1 style={{margin:0, fontSize:28, fontWeight:600, letterSpacing:'-0.025em'}}>Pick a <span className="grad-text">workspace</span> to get started</h1>
-        <div style={{fontSize:13, color:'var(--ink-3)', marginTop:6}}>4 workspaces · 18 saved views · last sync 09:42 UTC</div>
-      </div>
+    <div style={{flex:1, overflow:'auto', background:'var(--bg)'}}>
+      <div style={{maxWidth:1400, margin:'0 auto', padding:'40px 32px 64px'}}>
 
-      {/* Featured workspaces — FIRST */}
-      <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:14}}>
-        <div style={{fontSize:11, color:'var(--ink-4)', textTransform:'uppercase', letterSpacing:'0.1em', fontWeight:500}}>Featured Workspaces</div>
-        <div style={{fontSize:11, color:'var(--ink-3)'}}>Jump straight into a dashboard →</div>
-      </div>
-      <div style={{display:'grid', gridTemplateColumns:'repeat(4, 1fr)', gap:16, marginBottom:32}}>
-        {cards.map(c => {
-          const tints = { performance:'var(--c1)', risk:'var(--c4)', esg:'var(--c2)', issuer:'var(--c3)' };
-          const tint = tints[c.id];
-          return (
-          <button key={c.id} onClick={()=>openDash(c.id)} style={{textAlign:'left', background:'var(--bg-elev)', border:'1px solid var(--line)', borderRadius:14, overflow:'hidden', transition:'all 150ms', display:'flex', flexDirection:'column'}}
-            onMouseEnter={e=>{e.currentTarget.style.borderColor='var(--accent)'; e.currentTarget.style.transform='translateY(-2px)'; e.currentTarget.style.boxShadow='var(--shadow-glow)';}}
-            onMouseLeave={e=>{e.currentTarget.style.borderColor='var(--line)'; e.currentTarget.style.transform='none'; e.currentTarget.style.boxShadow='none';}}>
-            <div style={{padding:'16px 18px 12px'}}>
-              <div style={{display:'flex', alignItems:'center', gap:8}}>
-                <div style={{fontSize:14, fontWeight:600}}>{c.title}</div>
-                <span style={{fontSize:9.5, color:'var(--accent)', background:'var(--accent-soft)', padding:'2px 6px', borderRadius:4, marginLeft:'auto', fontWeight:500}}>{c.cls}</span>
+        {/* Hero */}
+        <div style={{marginBottom:36}}>
+          <h1 style={{margin:0, fontSize:38, fontWeight:700, letterSpacing:'-0.03em', color:'var(--ink)'}}>Markets, everywhere</h1>
+          <p style={{margin:'8px 0 0', fontSize:15, color:'var(--ink-3)', maxWidth:600}}>Your portfolio analytics in one place — performance, risk, sustainability, and issuer drill-down.</p>
+        </div>
+
+        {/* Featured "Indices" strip */}
+        <div style={{display:'grid', gridTemplateColumns:'repeat(4, 1fr)', gap:12, marginBottom:48}}>
+          {featured.map(f => (<TickerPill key={f.id} {...f} onClick={()=>openDash(f.id)}/>))}
+        </div>
+
+        {/* Portfolios section */}
+        <section style={{marginBottom:48}}>
+          <SectionHead title="Portfolios" subtitle="Holdings by mandate · monthly returns" seeAll onSeeAll={()=>openDash('performance')}/>
+          <div style={{background:'var(--bg-elev)', border:'1px solid var(--line)', borderRadius:8, overflow:'hidden'}}>
+            <table style={{width:'100%', borderCollapse:'collapse', fontSize:13}}>
+              <thead>
+                <tr style={{color:'var(--ink-4)', fontSize:11, textTransform:'uppercase', letterSpacing:'0.04em', background:'var(--bg-sunken)'}}>
+                  <th style={{textAlign:'left', padding:'10px 14px', fontWeight:600}}>Symbol</th>
+                  <th style={{textAlign:'right', padding:'10px 14px', fontWeight:600}}>Market value</th>
+                  <th style={{textAlign:'right', padding:'10px 14px', fontWeight:600}}>1M</th>
+                  <th style={{textAlign:'right', padding:'10px 14px', fontWeight:600}}>YTD</th>
+                  <th style={{textAlign:'right', padding:'10px 14px', fontWeight:600}}>Excess</th>
+                  <th style={{textAlign:'left', padding:'10px 14px', fontWeight:600}}>24M</th>
+                </tr>
+              </thead>
+              <tbody>
+                {portfolios.map((p,i)=>(
+                  <tr key={i} onClick={()=>openDash('performance')} style={{borderTop:'1px solid var(--line-faint)', cursor:'pointer'}}
+                    onMouseEnter={e=>e.currentTarget.style.background='var(--bg-sunken)'}
+                    onMouseLeave={e=>e.currentTarget.style.background=''}>
+                    <td style={{padding:'12px 14px'}}>
+                      <div style={{display:'flex', alignItems:'center', gap:10}}>
+                        <div style={{width:30, height:30, borderRadius:'50%', background:p.color, color:'white', display:'flex', alignItems:'center', justifyContent:'center', fontSize:10, fontWeight:700, fontFamily:'var(--font-mono)', flexShrink:0}}>{p.code}</div>
+                        <div style={{minWidth:0}}>
+                          <div style={{fontSize:13, fontWeight:600, color:'var(--ink)'}}>{p.name}</div>
+                          <div style={{fontSize:11, color:'var(--ink-4)', marginTop:1}}>{p.ccy}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="num" style={{padding:'12px 14px', color:'var(--ink)', fontWeight:500}}>${nfmt(p.mv,1)}</td>
+                    <td className="num" style={{padding:'12px 14px', color:p.pnl>=0?'var(--pos)':'var(--neg)', fontWeight:600}}>{p.pnl>=0?'+':''}{p.pnl.toFixed(2)}%</td>
+                    <td className="num" style={{padding:'12px 14px', color:p.ytd>=0?'var(--pos)':'var(--neg)', fontWeight:600}}>{p.ytd>=0?'+':''}{p.ytd.toFixed(2)}%</td>
+                    <td className="num" style={{padding:'12px 14px', color:p.ytdx>=0?'var(--pos)':'var(--neg)', fontWeight:600}}>{p.ytdx>=0?'+':''}{p.ytdx.toFixed(2)}%</td>
+                    <td style={{padding:'12px 14px', width:100}}><NovaSpark data={p.spark} width={84} height={24} grad/></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        {/* Asset Allocation */}
+        <section style={{marginBottom:48}}>
+          <SectionHead title="Asset allocation" subtitle="Current snapshot by asset class" seeAll onSeeAll={()=>openDash('performance')}/>
+          <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:16}}>
+            <div style={{background:'var(--bg-elev)', border:'1px solid var(--line)', borderRadius:8, padding:20}}>
+              <NovaDonut segments={[
+                {label:'Equities',         value:40.8, color:'var(--c1)'},
+                {label:'Corporate Bonds',  value:25.0, color:'var(--c2)'},
+                {label:'Government Bonds', value:12.2, color:'var(--c5)'},
+                {label:'Private Equity',   value:11.0, color:'var(--c6)'},
+                {label:'Hedge Funds',      value:8.0,  color:'var(--c7)'},
+                {label:'Other',            value:3.0,  color:'var(--c3)'},
+              ]} centerLabel="$2.83B" centerSub="Total MV"/>
+            </div>
+            <div style={{background:'var(--bg-elev)', border:'1px solid var(--line)', borderRadius:8, padding:'8px 12px'}}>
+              <NovaArea series={DATA.allocationHistory.series.slice(0,5)} labels={DATA.allocationHistory.labels} height={260}/>
+            </div>
+          </div>
+        </section>
+
+        {/* Top Issuers */}
+        <section style={{marginBottom:48}}>
+          <SectionHead title="Top issuers" subtitle="Holdings ranked by exposure" seeAll onSeeAll={()=>openDash('issuer')}/>
+          <div style={{background:'var(--bg-elev)', border:'1px solid var(--line)', borderRadius:8, overflow:'hidden'}}>
+            <table style={{width:'100%', borderCollapse:'collapse', fontSize:13}}>
+              <thead>
+                <tr style={{color:'var(--ink-4)', fontSize:11, textTransform:'uppercase', letterSpacing:'0.04em', background:'var(--bg-sunken)'}}>
+                  <th style={{textAlign:'left', padding:'10px 14px', fontWeight:600}}>Issuer</th>
+                  <th style={{textAlign:'right', padding:'10px 14px', fontWeight:600}}>Exposure</th>
+                  <th style={{textAlign:'right', padding:'10px 14px', fontWeight:600}}>1M</th>
+                  <th style={{textAlign:'left', padding:'10px 14px', fontWeight:600}}>24M</th>
+                </tr>
+              </thead>
+              <tbody>
+                {issuers.map((it,i)=>{
+                  const up = it.delta >= 0;
+                  return (
+                    <tr key={i} onClick={()=>openDash('issuer')} style={{borderTop:'1px solid var(--line-faint)', cursor:'pointer'}}
+                      onMouseEnter={e=>e.currentTarget.style.background='var(--bg-sunken)'}
+                      onMouseLeave={e=>e.currentTarget.style.background=''}>
+                      <td style={{padding:'12px 14px'}}>
+                        <div style={{display:'flex', alignItems:'center', gap:10}}>
+                          <div style={{width:30, height:30, borderRadius:'50%', background:it.color, color:'white', display:'flex', alignItems:'center', justifyContent:'center', fontSize:10, fontWeight:700, fontFamily:'var(--font-mono)', flexShrink:0}}>{it.code}</div>
+                          <div style={{minWidth:0}}>
+                            <div style={{fontSize:13, fontWeight:600, color:'var(--ink)'}}>{it.name}</div>
+                            <div style={{fontSize:11, color:'var(--ink-4)', marginTop:1}}>{it.sub}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="num" style={{padding:'12px 14px', fontWeight:600, color:'var(--ink)'}}>{it.price}</td>
+                      <td className="num" style={{padding:'12px 14px', color: up?'var(--pos)':'var(--neg)', fontWeight:600}}>{up?'+':''}{it.delta.toFixed(2)}%</td>
+                      <td style={{padding:'12px 14px', width:100}}><NovaSpark data={it.spark} width={84} height={24} grad color={up?'var(--pos)':'var(--neg)'}/></td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        {/* Risk + Sustainability */}
+        <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:24, marginBottom:48}}>
+          <section>
+            <SectionHead title="Risk" subtitle="VaR · CVaR · stress" seeAll onSeeAll={()=>openDash('risk')}/>
+            <div style={{background:'var(--bg-elev)', border:'1px solid var(--line)', borderRadius:8, overflow:'hidden'}}>
+              <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', borderBottom:'1px solid var(--line-faint)'}}>
+                <RiskTile label="VaR 95%" value="$46.3M" delta={-0.12} sep/>
+                <RiskTile label="VaR 99%" value="$54.2M" delta={0.34}/>
               </div>
-              <div style={{fontSize:11.5, color:'var(--ink-3)', marginTop:6, lineHeight:1.45, display:'-webkit-box', WebkitLineClamp:2, WebkitBoxOrient:'vertical', overflow:'hidden', minHeight:32}}>{c.desc}</div>
+              <div style={{display:'grid', gridTemplateColumns:'1fr 1fr'}}>
+                <RiskTile label="CVaR" value="$56.7M" delta={0.21} sep/>
+                <RiskTile label="Sharpe" value="1.42" delta={0.09}/>
+              </div>
             </div>
-            <div style={{padding:'0 18px 10px', display:'flex', alignItems:'baseline', gap:10}}>
-              <div className="mono" style={{fontSize:22, fontWeight:600, letterSpacing:'-0.02em'}}>{c.kpi}</div>
-              <div style={{fontSize:11, color:c.delta.startsWith('-')?'var(--neg)':'var(--pos)', fontFamily:'var(--font-mono)'}}>{c.delta}</div>
+          </section>
+          <section>
+            <SectionHead title="Sustainability" subtitle="ESG scores by pillar" seeAll onSeeAll={()=>openDash('esg')}/>
+            <div style={{background:'var(--bg-elev)', border:'1px solid var(--line)', borderRadius:8, padding:'16px 12px', display:'grid', gridTemplateColumns:'repeat(4, 1fr)', gap:8}}>
+              <MiniGauge value={5.50} label="ESG" color="var(--c1)"/>
+              <MiniGauge value={4.21} label="E"   color="var(--c2)"/>
+              <MiniGauge value={6.30} label="S"   color="var(--c6)"/>
+              <MiniGauge value={9.28} label="G"   color="var(--c5)"/>
             </div>
-            <div style={{height:64, marginTop:'auto', padding:'0 10px', display:'flex', alignItems:'flex-end'}}>
-              <CardPreview kind={c.preview} color={tint}/>
-            </div>
-            <div style={{padding:'8px 18px', borderTop:'1px solid var(--line-faint)', fontSize:10, color:'var(--ink-4)', fontFamily:'var(--font-mono)', letterSpacing:'0.04em', display:'flex', justifyContent:'space-between'}}>
-              <span>UPDATED {c.updated}</span>
-              <span style={{color:'var(--accent)'}}>Open →</span>
-            </div>
-          </button>
-          );
-        })}
-      </div>
-
-      {/* Hero KPI strip — below featured */}
-      <div style={{display:'grid', gridTemplateColumns:'repeat(4, 1fr)', gap:16, marginBottom:28}}>
-        <HeroKpi label="Total MV" value="$2.83B" delta={2.41} spark={series(20,100,2,101,0.5)} hero/>
-        <HeroKpi label="YTD Return" value="+5.18%" delta={1.63} deltaLabel="pts" spark={series(20,100,2.2,103,0.8)}/>
-        <HeroKpi label="Active Return" value="+2.13%" delta={-0.04} spark={series(20,100,0.8,104,0.2)}/>
-        <HeroKpi label="Sharpe" value="1.42" delta={0.09} deltaLabel="" spark={series(20,100,1.1,107,0.2)}/>
-      </div>
-
-      {/* All Reports */}
-      <NovaPanel title="All Reports" subtitle={`${filtered.length} items · browse every saved report`} actions={
-        <div style={{display:'flex', gap:4}}>
-          {cats.map(c=><NovaChip key={c} active={cat===c} onClick={()=>setCat(c)}>{c}</NovaChip>)}
+          </section>
         </div>
-      }>
-        <div style={{margin:'-8px -6px 0', overflow:'auto'}}>
-        <table style={{width:'100%', borderCollapse:'collapse', fontSize:11.5}}>
-          <thead>
-            <tr style={{color:'var(--ink-4)', fontSize:9.5, textTransform:'uppercase', letterSpacing:'0.05em', background:'var(--bg-sunken)'}}>
-              <th style={nth}>Name</th>
-              <th style={nth}>Class</th>
-              <th style={nth}>Theme</th>
-              <th style={nth}>Description</th>
-              <th style={nth}>Owner</th>
-              <th style={nth}>Updated</th>
-              <th style={{...nth, textAlign:'right'}}></th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map((r,i)=>(
-              <tr key={i} onClick={()=>openDash(r.id)} style={{borderTop:'1px solid var(--line-faint)', cursor:'pointer'}} onMouseEnter={e=>e.currentTarget.style.background='var(--bg-hover)'} onMouseLeave={e=>e.currentTarget.style.background=''}>
-                <td style={{...ntd, color:'var(--accent)', fontWeight:500}}>{r.name}</td>
-                <td style={{...ntd, color:'var(--ink-3)'}}><span style={{fontSize:10, padding:'2px 6px', border:'1px solid var(--line)', borderRadius:4}}>{r.cls}</span></td>
-                <td style={{...ntd, color:'var(--ink-2)'}}>{r.theme}</td>
-                <td style={{...ntd, color:'var(--ink-3)'}}>{r.desc}</td>
-                <td style={{...ntd, color:'var(--ink-3)'}}>{r.owner}</td>
-                <td style={{...ntd, color:'var(--ink-4)', fontFamily:'var(--font-mono)', fontSize:10.5}}>{r.updated}</td>
-                <td style={{...ntd, textAlign:'right', color:'var(--ink-4)'}}>⋯</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        </div>
-      </NovaPanel>
 
-      {/* Quick view */}
-      <div style={{display:'grid', gridTemplateColumns:'2fr 1fr', gap:16, marginTop:16}}>
-        <NovaPanel title="Portfolio Trend" subtitle="Last 24 months · NAV" actions={<div style={{display:'flex', gap:4}}><NovaChip active>24M</NovaChip><NovaChip>YTD</NovaChip><NovaChip>3Y</NovaChip></div>}>
-          <NovaArea series={DATA.allocationHistory.series.slice(0,3)} labels={DATA.allocationHistory.labels} height={240}/>
-        </NovaPanel>
-        <NovaPanel title="Allocation" subtitle="by Asset Class">
-          <NovaDonut segments={[
-            {label:'Equities', value:40.8, color:'var(--c1)'},
-            {label:'Corporate Bonds', value:25.0, color:'var(--c6)'},
-            {label:'Other', value:21.7, color:'var(--c3)'},
-            {label:'Govt Bonds', value:12.2, color:'var(--c2)'},
-            {label:'Cash', value:0.3, color:'var(--c7)'},
-          ]} centerLabel="$992K" centerSub="Total MV"/>
-        </NovaPanel>
+        {/* Reports */}
+        <section>
+          <SectionHead title="Recent reports" subtitle="Saved analytics across all workspaces"/>
+          <div style={{background:'var(--bg-elev)', border:'1px solid var(--line)', borderRadius:8, overflow:'hidden'}}>
+            <table style={{width:'100%', borderCollapse:'collapse', fontSize:13}}>
+              <thead>
+                <tr style={{color:'var(--ink-4)', fontSize:11, textTransform:'uppercase', letterSpacing:'0.04em', background:'var(--bg-sunken)'}}>
+                  <th style={{textAlign:'left', padding:'10px 14px', fontWeight:600}}>Name</th>
+                  <th style={{textAlign:'left', padding:'10px 14px', fontWeight:600}}>Class</th>
+                  <th style={{textAlign:'left', padding:'10px 14px', fontWeight:600}}>Theme</th>
+                  <th style={{textAlign:'left', padding:'10px 14px', fontWeight:600}}>Owner</th>
+                  <th style={{textAlign:'right', padding:'10px 14px', fontWeight:600}}>Updated</th>
+                </tr>
+              </thead>
+              <tbody>
+                {reports.map((r,i)=>(
+                  <tr key={i} onClick={()=>openDash(r.id)} style={{borderTop:'1px solid var(--line-faint)', cursor:'pointer'}}
+                    onMouseEnter={e=>e.currentTarget.style.background='var(--bg-sunken)'}
+                    onMouseLeave={e=>e.currentTarget.style.background=''}>
+                    <td style={{padding:'12px 14px', color:'var(--accent)', fontWeight:600}}>{r.name}</td>
+                    <td style={{padding:'12px 14px', color:'var(--ink-3)'}}><span style={{fontSize:11, padding:'2px 7px', border:'1px solid var(--line)', borderRadius:4}}>{r.cls}</span></td>
+                    <td style={{padding:'12px 14px', color:'var(--ink-2)'}}>{r.theme}</td>
+                    <td style={{padding:'12px 14px', color:'var(--ink-3)'}}>{r.owner}</td>
+                    <td style={{padding:'12px 14px', textAlign:'right', color:'var(--ink-4)', fontFamily:'var(--font-mono)', fontSize:11.5}}>{r.updated}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
       </div>
+    </div>
+  );
+}
+
+function RiskTile({label, value, delta, sep}) {
+  const up = delta >= 0;
+  return (
+    <div style={{padding:'18px 20px', borderRight: sep ? '1px solid var(--line-faint)' : 'none'}}>
+      <div style={{fontSize:11, color:'var(--ink-4)', textTransform:'uppercase', letterSpacing:'0.06em', fontWeight:600}}>{label}</div>
+      <div className="mono" style={{fontSize:24, fontWeight:700, color:'var(--ink)', marginTop:6, letterSpacing:'-0.02em'}}>{value}</div>
+      <div className="mono" style={{fontSize:12, color: up?'var(--pos)':'var(--neg)', marginTop:4, fontWeight:600}}>{up?'+':''}{delta.toFixed(2)}%</div>
+    </div>
+  );
+}
+
+function MiniGauge({value, label, color}) {
+  const pct = value / 10;
+  const r = 28, cx = 36, cy = 36;
+  const start = Math.PI, end = 0;
+  const a = start + (end - start) * pct;
+  const x1 = cx + r*Math.cos(start), y1 = cy + r*Math.sin(start);
+  const x2 = cx + r*Math.cos(end),   y2 = cy + r*Math.sin(end);
+  const xp = cx + r*Math.cos(a),     yp = cy + r*Math.sin(a);
+  return (
+    <div style={{display:'flex', flexDirection:'column', alignItems:'center', padding:'4px'}}>
+      <svg width={72} height={42} viewBox={`0 0 72 42`}>
+        <path d={`M${x1},${y1} A${r},${r} 0 0 1 ${x2},${y2}`} fill="none" stroke="var(--bg-sunken)" strokeWidth="6" strokeLinecap="round"/>
+        <path d={`M${x1},${y1} A${r},${r} 0 0 1 ${xp},${yp}`} fill="none" stroke={color} strokeWidth="6" strokeLinecap="round"/>
+      </svg>
+      <div className="mono" style={{fontSize:18, fontWeight:700, color:'var(--ink)', marginTop:-4, letterSpacing:'-0.02em'}}>{value.toFixed(2)}</div>
+      <div style={{fontSize:11, color:'var(--ink-4)', marginTop:2, fontWeight:600, letterSpacing:'0.04em'}}>{label}</div>
     </div>
   );
 }

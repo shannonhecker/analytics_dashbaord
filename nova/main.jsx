@@ -1,14 +1,14 @@
 // Nova main
 const NOVA_DEFAULTS = /*EDITMODE-BEGIN*/{
-  "accent": 265,
+  "accent": 220,
   "density": "comfortable",
-  "theme": "dark"
+  "theme": "light"
 }/*EDITMODE-END*/;
 
 function NovaApp() {
   const [screen, setScreen] = React.useState(localStorage.getItem('nova.screen') || 'home');
   const [tweaks, setTweaks] = React.useState(()=>{
-    try { return {...NOVA_DEFAULTS, ...JSON.parse(localStorage.getItem('nova.tweaks')||'{}')}; }
+    try { return {...NOVA_DEFAULTS, ...JSON.parse(localStorage.getItem('nova.tweaks.v2')||'{}')}; }
     catch { return NOVA_DEFAULTS; }
   });
   const [cmdkOpen, setCmdk] = React.useState(false);
@@ -22,7 +22,7 @@ function NovaApp() {
   ]);
 
   React.useEffect(()=>localStorage.setItem('nova.screen', screen), [screen]);
-  React.useEffect(()=>localStorage.setItem('nova.tweaks', JSON.stringify(tweaks)), [tweaks]);
+  React.useEffect(()=>localStorage.setItem('nova.tweaks.v2', JSON.stringify(tweaks)), [tweaks]);
   React.useEffect(()=>{
     // shift hue for accent swatch changes
     const h = tweaks.accent;
@@ -92,18 +92,15 @@ function NovaApp() {
   };
 
   return (
-    <div style={{height:'100vh', display:'flex', flexDirection:'column', background:'var(--bg)'}}>
-      <NovaTopBar tabs={tabs} active={screen} setActive={setScreen} closeTab={closeTab} onCmdK={()=>setCmdk(true)} theme={tweaks.theme} setTheme={(t)=>applyTweaks({theme:t})} onShare={()=>setShare(true)}/>
+    <div style={{minHeight:'100vh', display:'flex', flexDirection:'column', background:'var(--bg)'}}>
+      <NovaTopBar active={screen} setActive={openScreen} onCmdK={()=>setCmdk(true)} theme={tweaks.theme} setTheme={(t)=>applyTweaks({theme:t})} onShare={()=>setShare(true)}/>
       {screen !== 'home' && <NovaFilterBar title={title[screen]} subtitle={sub[screen]} filters={filters[screen]}/>}
-      <div style={{flex:1, display:'flex', minHeight:0}}>
-        <NovaLeftNav screen={screen} setScreen={openScreen}/>
-        <div style={{flex:1, minWidth:0, display:'flex', flexDirection:'column'}} data-screen-label={`screen-${screen}`}>
-          {screen==='home' && <NovaHome openDash={openScreen}/>}
-          {screen==='performance' && <NovaPerf/>}
-          {screen==='risk' && <NovaRisk/>}
-          {screen==='esg' && <NovaEsg/>}
-          {screen==='issuer' && <NovaIssuer/>}
-        </div>
+      <div style={{flex:1, display:'flex', flexDirection:'column', minHeight:0}} data-screen-label={`screen-${screen}`}>
+        {screen==='home' && <NovaHome openDash={openScreen}/>}
+        {screen==='performance' && <NovaPerf/>}
+        {screen==='risk' && <NovaRisk/>}
+        {screen==='esg' && <NovaEsg/>}
+        {screen==='issuer' && <NovaIssuer/>}
       </div>
       {cmdkOpen && <NovaCmdK onClose={()=>setCmdk(false)} onNav={openScreen}/>}
       {shareOpen && <NovaShare onClose={()=>setShare(false)}/>}
