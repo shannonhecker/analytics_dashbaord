@@ -31,15 +31,17 @@
   --neg: #f23645;
   --neg-soft: rgba(242, 54, 69, 0.10);
 
-  /* Categorical (multi-series) */
-  --c1: #2962ff;
-  --c2: #22ab94;
-  --c3: #5d606b;
-  --c4: #f23645;
-  --c5: #ff9800;
-  --c6: #9c27b0;
-  --c7: #00bcd4;
-  --c8: #ff6d00;
+  /* Categorical palette — locked series mapping (avoid pos/neg green/red collisions).
+     c1=Equities, c2=Corp Bonds, c3=Govt Bonds, c4=Private Eq/Alt, c5=Hedge Funds, c6=Cash/Other.
+     c7/c8 reserved for extras. */
+  --c1: #2962ff;  /* Equities — brand blue */
+  --c2: #0d9488;  /* Corp Bonds — teal (distinct from pos green) */
+  --c3: #8b5cf6;  /* Govt Bonds — violet */
+  --c4: #f59e0b;  /* Private Equity / Alternatives — amber */
+  --c5: #ec4899;  /* Hedge Funds — pink */
+  --c6: #64748b;  /* Cash / Other — slate */
+  --c7: #06b6d4;  /* extra — cyan */
+  --c8: #f97316;  /* extra — orange */
 
   --font-ui: -apple-system, BlinkMacSystemFont, 'Trebuchet MS', Roboto, Ubuntu, sans-serif;
   --font-mono: 'Geist Mono', 'JetBrains Mono', ui-monospace, monospace;

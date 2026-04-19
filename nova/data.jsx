@@ -46,10 +46,10 @@ const DATA = {
     labels: Array.from({length:24},(_,i)=>`'${String(2*i+1).padStart(2,'0')}`),
     series: [
       { name:'Equities',     data: series(24, 40, 1.6, 21, -0.05), color:'var(--c1)'},
-      { name:'Corp Bonds',   data: series(24, 25, 0.8, 22, 0.1),   color:'var(--c3)'},
-      { name:'Govt Bonds',   data: series(24, 18, 0.6, 23, 0),     color:'var(--c6)'},
-      { name:'Private Eq',   data: series(24, 10, 0.8, 24, 0.05),  color:'var(--c5)'},
-      { name:'Hedge Funds',  data: series(24, 8,  0.5, 25, 0.02),  color:'var(--c2)'},
+      { name:'Corp Bonds',   data: series(24, 25, 0.8, 22, 0.1),   color:'var(--c2)'},
+      { name:'Govt Bonds',   data: series(24, 18, 0.6, 23, 0),     color:'var(--c3)'},
+      { name:'Private Eq',   data: series(24, 10, 0.8, 24, 0.05),  color:'var(--c4)'},
+      { name:'Hedge Funds',  data: series(24, 8,  0.5, 25, 0.02),  color:'var(--c5)'},
     ]
   },
   riskSummary: [
@@ -63,24 +63,24 @@ const DATA = {
   mvByCurrency: {
     labels: ['USD','EUR','GBP','JPY','CAD','AUD','CHF','HKD','SGD'],
     data: [
-      { name:'Bonds',          data: [62, 18, 12,  8,  5,  4,  3,  2, 1], color:'var(--c3)'},
+      { name:'Bonds',          data: [62, 18, 12,  8,  5,  4,  3,  2, 1], color:'var(--c2)'},
       { name:'Equity',         data: [24, 22, 20, 14,  8,  6,  5,  3, 2], color:'var(--c1)'},
-      { name:'Private Assets', data: [15, 14, 10,  8,  6,  4,  3,  2, 1], color:'var(--c5)'},
+      { name:'Private Assets', data: [15, 14, 10,  8,  6,  4,  3,  2, 1], color:'var(--c4)'},
     ]
   },
   riskContribution: {
     labels: ['VaR MC 95','FX Risk','Equity Risk','Rate Risk','Issuer','Vega'],
     data: [
-      { name:'Aggregate',      data:[100, 100, 100, 100, 100, 100], color:'var(--c1)'},
-      { name:'Bonds',          data:[34, 12, 8, 62, 38, 15],        color:'var(--c3)'},
-      { name:'Equity',         data:[42, 28, 70, 8, 22, 38],        color:'var(--c4)'},
-      { name:'Private Assets', data:[24, 16, 18, 24, 40, 32],       color:'var(--c5)'},
+      { name:'Aggregate',      data:[100, 100, 100, 100, 100, 100], color:'var(--c6)'},
+      { name:'Bonds',          data:[34, 12, 8, 62, 38, 15],        color:'var(--c2)'},
+      { name:'Equity',         data:[42, 28, 70, 8, 22, 38],        color:'var(--c1)'},
+      { name:'Private Assets', data:[24, 16, 18, 24, 40, 32],       color:'var(--c4)'},
     ]
   },
   topIssuers: {
     labels: Array.from({length:10},(_,i)=>`Issuer ${i+1}`),
     data: [
-      { name:'Bonds',   data:[6.8, 5.6, 5.1, 4.4, 4.1, 3.7, 3.3, 2.9, 2.3, 1.9], color:'var(--c3)'},
+      { name:'Bonds',   data:[6.8, 5.6, 5.1, 4.4, 4.1, 3.7, 3.3, 2.9, 2.3, 1.9], color:'var(--c2)'},
       { name:'Equity',  data:[3.2, 2.8, 4.1, 3.4, 2.1, 2.6, 1.9, 1.4, 0.9, 0.6], color:'var(--c1)'},
     ]
   },
@@ -88,17 +88,17 @@ const DATA = {
     labels: months(24, 1, 24),
     series: [
       { name:'VaR 95% Actual',    data: series(24, 3.5, 0.35, 31, 0.02), color:'var(--c1)' },
-      { name:'VaR 95% Portfolio', data: series(24, 3.3, 0.32, 32, 0.02), color:'var(--c3)' },
-      { name:'VaR 95% Benchmark', data: series(24, 3.0, 0.28, 33, 0.02), color:'var(--c2)', dots:true },
+      { name:'VaR 95% Portfolio', data: series(24, 3.3, 0.32, 32, 0.02), color:'var(--c4)' },
+      { name:'VaR 95% Benchmark', data: series(24, 3.0, 0.28, 33, 0.02), color:'var(--c6)', dots:true },
     ]
   },
   returnsByAccount: {
     labels: ['1M','3M','YTD','1Y','3Y','5Y'],
     data: [
       { name:'Equity Global I',  data:[1.42, -6.04, 2.30, 4.80, 8.20, 9.10], color:'var(--c1)' },
-      { name:'MSCI World (Net)', data:[1.55, -5.22, 2.60, 5.30, 8.90, 9.80], color:'var(--c3)' },
+      { name:'MSCI World (Net)', data:[1.55, -5.22, 2.60, 5.30, 8.90, 9.80], color:'var(--c6)' },
     ],
-    line: { name:'Excess', data:[-0.13, -0.82, -0.30, -0.50, -0.70, -0.70], color:'var(--c5)' }
+    line: { name:'Excess', data:[-0.13, -0.82, -0.30, -0.50, -0.70, -0.70], color:'var(--c4)' }
   },
   esgAccounts: [
     { name:'Total',            mv:94164911, covered:73094058, nav:93144911, pos:789, iss:780, wa: 5.55, e: 6.75, s:3.21, g:0.30, gov:6.28 },
@@ -122,10 +122,10 @@ const DATA = {
     labels: ['Q1','Q2','Q3','Q4'],
     bars: [
       { name:'E', data:[6.2, 7.8, 7.5, 7.9], color:'var(--c2)' },
-      { name:'S', data:[5.8, 6.1, 6.4, 6.7], color:'var(--c3)' },
-      { name:'G', data:[6.5, 6.8, 6.9, 7.1], color:'var(--c5)' },
+      { name:'S', data:[5.8, 6.1, 6.4, 6.7], color:'var(--c1)' },
+      { name:'G', data:[6.5, 6.8, 6.9, 7.1], color:'var(--c3)' },
     ],
-    line: { name:'ESG', data:[6.2, 6.9, 6.9, 7.2], color:'var(--c1)' }
+    line: { name:'ESG', data:[6.2, 6.9, 6.9, 7.2], color:'var(--accent)' }
   },
   issuer: {
     name:'Meridian Industries',
@@ -156,9 +156,9 @@ const DATA = {
     labels: months(12, 4, 25),
     series:[
       { name:'Real Estate C (Fund)',     data: [-2.5, 1.5, -0.2, -1.7, 0.8, 5.2, -2.8, 7.3, -1.5, -2.1, 1.6, 0.7], color:'var(--c1)' },
-      { name:'Fund Index (Benchmark)',   data: [-3.5, 1.1, 0.1, -2.3, 1.4, 4.8, -3.5, 5.9, -1.8, -2.5, 1.3, 1.1], color:'var(--c3)' },
+      { name:'Fund Index (Benchmark)',   data: [-3.5, 1.1, 0.1, -2.3, 1.4, 4.8, -3.5, 5.9, -1.8, -2.5, 1.3, 1.1], color:'var(--c6)' },
     ],
-    line: { name:'Excess', data: [2.2, -1.8, 2.4, -2.5, 1.0, 2.2, 1.0, 2.1, 0.7, 0.8, -1.3, -1.8], color:'var(--c5)', dots:true }
+    line: { name:'Excess', data: [2.2, -1.8, 2.4, -2.5, 1.0, 2.2, 1.0, 2.1, 0.7, 0.8, -1.3, -1.8], color:'var(--c4)', dots:true }
   },
   tradesByRegion: [
     { code:'NA',  name:'N. America', value:4210, x:0.18, y:0.36 },

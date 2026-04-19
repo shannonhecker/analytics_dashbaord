@@ -52,7 +52,7 @@ function CardPreview({kind, color='var(--accent)'}) {
   }
   if (kind === 'donut') {
     const cx = W/2, cy = H/2+2, r = 24, rr = 16;
-    const segs = [{v:0.42, c:color},{v:0.28, c:'var(--c2)'},{v:0.18, c:'var(--c3)'},{v:0.12, c:'var(--c6)'}];
+    const segs = [{v:0.42, c:color},{v:0.28, c:'var(--c2)'},{v:0.18, c:'var(--c4)'},{v:0.12, c:'var(--c6)'}];
     let a0 = -Math.PI/2;
     return (
       <svg width="100%" height={H} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" style={{display:'block'}}>
@@ -113,30 +113,31 @@ function TickerPill({code, name, sub, price, delta, spark, color, onClick}) {
 }
 
 function NovaHome({openDash}) {
-  // Map portfolios → ticker entries using their actual data
-  const colors = ['var(--c1)','var(--c2)','var(--c4)','var(--c5)','var(--c6)','var(--c7)','var(--c3)','var(--c8)'];
+  // Locked palette — c1 Equities, c2 Corp Bonds, c3 Govt Bonds, c4 Private Eq, c5 Hedge Funds, c6 Cash/Other
+  // Portfolio rows reuse these by row index (purely a "row badge" use, not data-encoding)
+  const rowColors = ['var(--c1)','var(--c2)','var(--c3)','var(--c4)','var(--c5)','var(--c6)','var(--c7)','var(--c8)'];
   const portfolios = DATA.portfolios.slice(0, 8).map((p, i) => ({
     ...p,
     code: p.name.split(' ').map(w=>w[0]).join('').slice(0,3).toUpperCase(),
-    color: colors[i % colors.length],
+    color: rowColors[i % rowColors.length],
   }));
 
-  // Featured strip — TradingView "Indices" pattern
+  // Featured workspace cards (with mini chart preview thumbnails) — restored from V1
   const featured = [
-    { id:'performance', code:'PRF', name:'Performance',    sub:'Returns & Attribution',   price:'+5.18%', delta: 2.13, color:'var(--c1)' },
-    { id:'risk',        code:'RSK', name:'Risk',           sub:'VaR · CVaR · Stress',     price:'$46.3M', delta:-0.12, color:'var(--c4)' },
-    { id:'esg',         code:'ESG', name:'Sustainability', sub:'ESG · Climate · Pillars', price:'5.50',   delta: 0.24, color:'var(--c2)' },
-    { id:'issuer',      code:'MRD', name:'Issuer Detail',  sub:'Single-name · Peers',     price:'AA',     delta: 1.10, color:'var(--c5)' },
+    { id:'performance', title:'Performance',    cls:'Holdings', desc:'Portfolio returns, attribution, and benchmark comparison across asset classes.', updated:'2 min ago',  kpi:'+5.18%', delta:'+2.13pts', preview:'area',  tint:'var(--c1)' },
+    { id:'risk',        title:'Risk',           cls:'Holdings', desc:'VaR, CVaR, contribution analysis, issuer exposure, currency breakdown.',         updated:'5 min ago',  kpi:'$46.3M', delta:'-0.12%',   preview:'bars',  tint:'var(--c4)' },
+    { id:'esg',         title:'Sustainability', cls:'Holdings', desc:'ESG scoring, climate alignment, portfolio emissions, sector contribution.',       updated:'1 hr ago',   kpi:'5.50',   delta:'+0.24pts', preview:'gauge', tint:'var(--c2)' },
+    { id:'issuer',      title:'Issuer Detail',  cls:'Company',  desc:'Single-issuer deep dive with peer comparison and scoring history.',                updated:'22 min ago', kpi:'AA',     delta:'+2 notch', preview:'donut', tint:'var(--c3)' },
   ];
 
-  // Top issuers
+  // Top issuers — varied palette but no semantic green/red
   const issuers = [
     { code:'AXS', name:'Apex Systems',        sub:'US · Tech',         price:'4.21%', delta:  6.4, spark: series(24,100,1.2,11), color:'var(--c1)' },
     { code:'CDR', name:'Calder Industries',   sub:'US · Industrials',  price:'3.87%', delta: -1.2, spark: series(24,100,1.0,12), color:'var(--c4)' },
     { code:'MRD', name:'Meridian Industries', sub:'US · Industrials',  price:'3.42%', delta:  2.8, spark: series(24,100,0.9,13), color:'var(--c5)' },
-    { code:'ORN', name:'Orion Holdings',      sub:'EU · Materials',    price:'2.95%', delta:  0.4, spark: series(24,100,1.4,14), color:'var(--c6)' },
+    { code:'ORN', name:'Orion Holdings',      sub:'EU · Materials',    price:'2.95%', delta:  0.4, spark: series(24,100,1.4,14), color:'var(--c3)' },
     { code:'SBL', name:'Sable & Co.',         sub:'UK · Financials',   price:'2.61%', delta: -2.1, spark: series(24,100,1.3,15), color:'var(--c2)' },
-    { code:'NVL', name:'Novalis Group',       sub:'EU · Healthcare',   price:'2.23%', delta:  3.1, spark: series(24,100,0.8,16), color:'var(--c7)' },
+    { code:'NVL', name:'Novalis Group',       sub:'EU · Healthcare',   price:'2.23%', delta:  3.1, spark: series(24,100,0.8,16), color:'var(--c6)' },
   ];
 
   // Reports
@@ -159,9 +160,32 @@ function NovaHome({openDash}) {
           <p style={{margin:'8px 0 0', fontSize:15, color:'var(--ink-3)', maxWidth:600}}>Your portfolio analytics in one place — performance, risk, sustainability, and issuer drill-down.</p>
         </div>
 
-        {/* Featured "Indices" strip */}
-        <div style={{display:'grid', gridTemplateColumns:'repeat(4, 1fr)', gap:12, marginBottom:48}}>
-          {featured.map(f => (<TickerPill key={f.id} {...f} onClick={()=>openDash(f.id)}/>))}
+        {/* Featured workspaces — cards with mini chart preview */}
+        <div style={{display:'grid', gridTemplateColumns:'repeat(4, 1fr)', gap:16, marginBottom:48}}>
+          {featured.map(c => (
+            <button key={c.id} onClick={()=>openDash(c.id)} style={{textAlign:'left', background:'var(--bg-elev)', border:'1px solid var(--line)', borderRadius:8, overflow:'hidden', transition:'all 150ms', display:'flex', flexDirection:'column'}}
+              onMouseEnter={e=>{e.currentTarget.style.borderColor='var(--ink-5)'; e.currentTarget.style.boxShadow='var(--shadow-md)'; e.currentTarget.style.transform='translateY(-1px)';}}
+              onMouseLeave={e=>{e.currentTarget.style.borderColor='var(--line)'; e.currentTarget.style.boxShadow='none'; e.currentTarget.style.transform='none';}}>
+              <div style={{padding:'16px 18px 10px'}}>
+                <div style={{display:'flex', alignItems:'center', gap:8}}>
+                  <div style={{fontSize:14, fontWeight:600, color:'var(--ink)'}}>{c.title}</div>
+                  <span style={{fontSize:10, color:'var(--ink-3)', background:'var(--bg-sunken)', padding:'2px 7px', borderRadius:4, marginLeft:'auto', fontWeight:600, letterSpacing:'0.02em'}}>{c.cls}</span>
+                </div>
+                <div style={{fontSize:12, color:'var(--ink-3)', marginTop:6, lineHeight:1.45, display:'-webkit-box', WebkitLineClamp:2, WebkitBoxOrient:'vertical', overflow:'hidden', minHeight:34}}>{c.desc}</div>
+              </div>
+              <div style={{padding:'0 18px 10px', display:'flex', alignItems:'baseline', gap:10}}>
+                <div className="mono" style={{fontSize:22, fontWeight:700, letterSpacing:'-0.02em', color:'var(--ink)'}}>{c.kpi}</div>
+                <div style={{fontSize:11, color:c.delta.startsWith('-')?'var(--neg)':'var(--pos)', fontFamily:'var(--font-mono)', fontWeight:600}}>{c.delta}</div>
+              </div>
+              <div style={{height:64, marginTop:'auto', padding:'0 10px', display:'flex', alignItems:'flex-end'}}>
+                <CardPreview kind={c.preview} color={c.tint}/>
+              </div>
+              <div style={{padding:'8px 18px', borderTop:'1px solid var(--line-faint)', fontSize:10.5, color:'var(--ink-4)', fontFamily:'var(--font-mono)', letterSpacing:'0.04em', display:'flex', justifyContent:'space-between', textTransform:'uppercase', fontWeight:600}}>
+                <span>Updated {c.updated}</span>
+                <span style={{color:'var(--accent)'}}>Open →</span>
+              </div>
+            </button>
+          ))}
         </div>
 
         {/* Portfolios section */}
@@ -213,10 +237,10 @@ function NovaHome({openDash}) {
               <NovaDonut segments={[
                 {label:'Equities',         value:40.8, color:'var(--c1)'},
                 {label:'Corporate Bonds',  value:25.0, color:'var(--c2)'},
-                {label:'Government Bonds', value:12.2, color:'var(--c5)'},
-                {label:'Private Equity',   value:11.0, color:'var(--c6)'},
-                {label:'Hedge Funds',      value:8.0,  color:'var(--c7)'},
-                {label:'Other',            value:3.0,  color:'var(--c3)'},
+                {label:'Government Bonds', value:12.2, color:'var(--c3)'},
+                {label:'Private Equity',   value:11.0, color:'var(--c4)'},
+                {label:'Hedge Funds',      value:8.0,  color:'var(--c5)'},
+                {label:'Other',            value:3.0,  color:'var(--c6)'},
               ]} centerLabel="$2.83B" centerSub="Total MV"/>
             </div>
             <div style={{background:'var(--bg-elev)', border:'1px solid var(--line)', borderRadius:8, padding:'8px 12px'}}>
@@ -283,10 +307,10 @@ function NovaHome({openDash}) {
           <section>
             <SectionHead title="Sustainability" subtitle="ESG scores by pillar" seeAll onSeeAll={()=>openDash('esg')}/>
             <div style={{background:'var(--bg-elev)', border:'1px solid var(--line)', borderRadius:8, padding:'16px 12px', display:'grid', gridTemplateColumns:'repeat(4, 1fr)', gap:8}}>
-              <MiniGauge value={5.50} label="ESG" color="var(--c1)"/>
+              <MiniGauge value={5.50} label="ESG" color="var(--accent)"/>
               <MiniGauge value={4.21} label="E"   color="var(--c2)"/>
-              <MiniGauge value={6.30} label="S"   color="var(--c6)"/>
-              <MiniGauge value={9.28} label="G"   color="var(--c5)"/>
+              <MiniGauge value={6.30} label="S"   color="var(--c1)"/>
+              <MiniGauge value={9.28} label="G"   color="var(--c3)"/>
             </div>
           </section>
         </div>
@@ -397,11 +421,11 @@ function NovaPerf() {
         </NovaPanel>
         <NovaPanel title="Allocation" subtitle="Current snapshot">
           <NovaDonut segments={[
-            {label:'Equities', value:40.8, color:'var(--c1)'},
-            {label:'Corp Bonds', value:25.0, color:'var(--c6)'},
-            {label:'Other', value:21.7, color:'var(--c3)'},
-            {label:'Govt Bonds', value:12.2, color:'var(--c2)'},
-            {label:'Cash', value:0.3, color:'var(--c5)'},
+            {label:'Equities',   value:40.8, color:'var(--c1)'},
+            {label:'Corp Bonds', value:25.0, color:'var(--c2)'},
+            {label:'Govt Bonds', value:12.2, color:'var(--c3)'},
+            {label:'Other',      value:21.7, color:'var(--c6)'},
+            {label:'Cash',       value:0.3,  color:'var(--c4)'},
           ]} centerLabel="$992K" centerSub="Total MV"/>
         </NovaPanel>
       </div>
@@ -525,9 +549,9 @@ function NovaEsg() {
   return (
     <div style={{flex:1, overflow:'auto', padding:24, display:'flex', flexDirection:'column', gap:16}}>
       <div style={{display:'grid', gridTemplateColumns:'repeat(4, 1fr)', gap:16}}>
-        <NovaPanel title="ESG Score" subtitle="Weighted"><NovaGauge value={5.50} max={10} label="ESG" color="var(--c1)"/></NovaPanel>
+        <NovaPanel title="ESG Score" subtitle="Weighted"><NovaGauge value={5.50} max={10} label="ESG" color="var(--accent)"/></NovaPanel>
         <NovaPanel title="Environmental" subtitle="Pillar"><NovaGauge value={4.21} max={10} label="E" color="var(--c2)"/></NovaPanel>
-        <NovaPanel title="Social" subtitle="Pillar"><NovaGauge value={6.30} max={10} label="S" color="var(--c6)"/></NovaPanel>
+        <NovaPanel title="Social" subtitle="Pillar"><NovaGauge value={6.30} max={10} label="S" color="var(--c1)"/></NovaPanel>
         <NovaPanel title="Governance" subtitle="Pillar"><NovaGauge value={9.28} max={10} label="G" color="var(--c3)"/></NovaPanel>
       </div>
 
@@ -597,7 +621,7 @@ function NovaIssuer() {
         <NovaPanel title="Pillar Scores">
           <div style={{display:'flex', flexDirection:'column', gap:14, padding:'4px'}}>
             <PillarRow label="E" value={d.e} color="var(--c2)"/>
-            <PillarRow label="S" value={d.s} color="var(--c6)"/>
+            <PillarRow label="S" value={d.s} color="var(--c1)"/>
             <PillarRow label="G" value={d.g} color="var(--c3)"/>
           </div>
         </NovaPanel>
@@ -605,7 +629,7 @@ function NovaIssuer() {
 
       <div style={{display:'grid', gridTemplateColumns:'2fr 1fr', gap:16}}>
         <NovaPanel title="Revenue & Exposure" subtitle="Quarterly, $M">
-          <NovaBar groups={['Q1 23','Q2 23','Q3 23','Q4 23','Q1 24','Q2 24','Q3 24','Q4 24','Q1 25','Q2 25','Q3 25','Q4 25']} series={[{name:'Revenue', data: d.revenue, color:'var(--c1)'}]} compareLine={{name:'Exposure', data: d.revenue.map((_,i)=>2800 + i*50 + (i%3)*30), color:'var(--accent-2)'}} height={260}/>
+          <NovaBar groups={['Q1 23','Q2 23','Q3 23','Q4 23','Q1 24','Q2 24','Q3 24','Q4 24','Q1 25','Q2 25','Q3 25','Q4 25']} series={[{name:'Revenue', data: d.revenue, color:'var(--c1)'}]} compareLine={{name:'Exposure', data: d.revenue.map((_,i)=>2800 + i*50 + (i%3)*30), color:'var(--c4)'}} height={260}/>
         </NovaPanel>
         <NovaPanel title="Peer Comparison">
           <table style={{width:'100%', borderCollapse:'collapse', fontSize:11.5}}>
