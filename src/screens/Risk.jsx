@@ -1,6 +1,6 @@
 import React from 'react';
 import { NovaPanel } from '../components/shell.jsx';
-import { NovaArea, NovaBar, nfmt } from '../components/charts.jsx';
+import { NovaArea, NovaBar } from '../components/charts.jsx';
 import { HeroKpi } from '../components/kpi.jsx';
 import { NovaGrid } from '../components/NovaGrid.jsx';
 import { MoneyCell, HeatmapCell } from '../components/cell-renderers.jsx';
