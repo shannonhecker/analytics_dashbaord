@@ -17,32 +17,34 @@
   --ink-4: #868993;
   --ink-5: #b2b5be;
 
-  /* TradingView signature blue link, green/red deltas */
+  /* IBM Carbon Design System — primary action blue */
   --accent-h: 220;
-  --accent: #2962ff;
-  --accent-2: #5b8def;
-  --accent-soft: rgba(41, 98, 255, 0.08);
-  --accent-glow: rgba(41, 98, 255, 0.18);
-  --grad: linear-gradient(135deg, #2962ff, #5b8def);
-  --grad-v: linear-gradient(180deg, rgba(41, 98, 255, 0.10), rgba(41, 98, 255, 0));
+  --accent: #0f62fe;        /* Carbon Blue 60 */
+  --accent-2: #4589ff;      /* Carbon Blue 60 (dark variant) */
+  --accent-soft: rgba(15, 98, 254, 0.10);
+  --accent-glow: rgba(15, 98, 254, 0.20);
+  --grad: linear-gradient(135deg, #0f62fe, #4589ff);
+  --grad-v: linear-gradient(180deg, rgba(15, 98, 254, 0.10), rgba(15, 98, 254, 0));
 
-  --pos: #22ab94;
-  --pos-soft: rgba(34, 171, 148, 0.10);
-  --neg: #f23645;
-  --neg-soft: rgba(242, 54, 69, 0.10);
+  /* Carbon alert colors — pos/neg semantic */
+  --pos: #24a148;            /* Carbon Green 50 */
+  --pos-soft: rgba(36, 161, 72, 0.10);
+  --neg: #da1e28;            /* Carbon Red 60 */
+  --neg-soft: rgba(218, 30, 40, 0.10);
 
-  /* Categorical palette — 2026 executive earth-tone direction (mahogany + aubergine).
-     Locked series mapping: c1=Equities, c2=Corp Bonds, c3=Govt Bonds,
-     c4=Private Eq/Alt, c5=Hedge Funds, c6=Cash/Other. c7/c8 reserved.
-     Hues chosen to remain legible on both light and dark backgrounds. */
-  --c1: #2962ff;  /* Equities — brand blue */
-  --c2: #0d9488;  /* Corp Bonds — teal */
-  --c3: #9b4d6e;  /* Govt Bonds — aubergine / mauve plum */
-  --c4: #c04000;  /* Private Equity — mahogany (replaces amber) */
-  --c5: #ec4899;  /* Hedge Funds — pink */
-  --c6: #64748b;  /* Cash / Other — slate */
-  --c7: #06b6d4;  /* extra — cyan */
-  --c8: #b08968;  /* extra — warm taupe */
+  /* Categorical palette — IBM Carbon, LIGHT theme (white bg).
+     Sequence curated by Carbon for maximum neighbor contrast.
+     Mapping: c1=Equities, c2=Corp Bonds, c3=Govt Bonds,
+     c4=Private Eq, c5=Hedge Funds, c6=Cash/Other.
+     Colors avoid red/green to prevent collision with pos/neg semantics. */
+  --c1: #6929c4;  /* Carbon Purple 70 */
+  --c2: #1192e8;  /* Carbon Cyan 50 */
+  --c3: #005d5d;  /* Carbon Teal 70 */
+  --c4: #9f1853;  /* Carbon Magenta 70 */
+  --c5: #002d9c;  /* Carbon Blue 80 */
+  --c6: #8d8d8d;  /* Carbon Cool Gray 50 */
+  --c7: #ee538b;  /* Carbon Magenta 50 (extra) */
+  --c8: #b28600;  /* Carbon Yellow 50 (extra) */
 
   --font-ui: -apple-system, BlinkMacSystemFont, 'Trebuchet MS', Roboto, Ubuntu, sans-serif;
   --font-mono: 'Geist Mono', 'JetBrains Mono', ui-monospace, monospace;
@@ -73,26 +75,45 @@
 }
 
 [data-theme="dark"] {
-  --bg: #0d0e14;
-  --bg-elev: #131620;
-  --bg-elev-2: #1a1d28;
-  --bg-sunken: #0a0b10;
-  --bg-hover: #1d2130;
-  --bg-active: #242838;
-  --line: #1f2433;
-  --line-strong: #2a3042;
-  --line-faint: #171b26;
+  /* Carbon-style dark surfaces — g100 / g90 spec */
+  --bg: #161616;            /* Carbon Gray 100 */
+  --bg-elev: #262626;       /* Carbon Gray 90 */
+  --bg-elev-2: #393939;     /* Carbon Gray 80 */
+  --bg-sunken: #161616;
+  --bg-hover: #353535;
+  --bg-active: #525252;
+  --line: #393939;          /* Carbon Gray 80 */
+  --line-strong: #525252;
+  --line-faint: #2c2c2c;
 
-  --ink: #f0f3f8;
-  --ink-2: #d4d9e4;
-  --ink-3: #868e9e;
-  --ink-4: #5a6170;
-  --ink-5: #3d4353;
+  --ink: #f4f4f4;           /* Carbon Gray 10 */
+  --ink-2: #c6c6c6;         /* Carbon Gray 30 */
+  --ink-3: #a8a8a8;         /* Carbon Gray 40 */
+  --ink-4: #8d8d8d;         /* Carbon Gray 50 */
+  --ink-5: #6f6f6f;
 
-  --accent-soft: rgba(41, 98, 255, 0.16);
-  --accent-glow: rgba(41, 98, 255, 0.32);
-  --pos-soft: rgba(34, 171, 148, 0.14);
-  --neg-soft: rgba(242, 54, 69, 0.14);
+  /* Carbon dark accent + alerts */
+  --accent: #4589ff;        /* Carbon Blue 60 (dark) */
+  --accent-2: #78a9ff;      /* Carbon Blue 50 */
+  --accent-soft: rgba(69, 137, 255, 0.18);
+  --accent-glow: rgba(69, 137, 255, 0.32);
+  --grad: linear-gradient(135deg, #4589ff, #78a9ff);
+
+  --pos: #42be65;            /* Carbon Green 40 */
+  --pos-soft: rgba(66, 190, 101, 0.16);
+  --neg: #fa4d56;            /* Carbon Red 50 */
+  --neg-soft: rgba(250, 77, 86, 0.16);
+
+  /* Categorical palette — Carbon DARK theme spec.
+     Lighter weights tuned for contrast on Gray 90/100 surfaces. */
+  --c1: #8a3ffc;  /* Carbon Purple 60 */
+  --c2: #33b1ff;  /* Carbon Cyan 40 */
+  --c3: #007d79;  /* Carbon Teal 60 */
+  --c4: #ff7eb6;  /* Carbon Magenta 40 */
+  --c5: #4589ff;  /* Carbon Blue 60 */
+  --c6: #a8a8a8;  /* Carbon Gray 40 */
+  --c7: #d12771;  /* Carbon Magenta 60 */
+  --c8: #d2a106;  /* Carbon Yellow 30 */
 
   --shadow-sm: 0 1px 2px rgba(0,0,0,.35);
   --shadow-md: 0 6px 20px -4px rgba(0,0,0,.5), 0 2px 6px rgba(0,0,0,.3);
