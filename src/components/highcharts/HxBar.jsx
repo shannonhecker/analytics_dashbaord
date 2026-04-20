@@ -109,9 +109,16 @@ export function HxBar({ groups, series, compareLine, height = 260, showLegend = 
       chart: {
         type: 'column',
         events: {
+          load() {
+            const chart = this;
+            // Apply once after initial paint AND once more after the animation
+            // settles (Highcharts repaints columns several times during animation
+            // and can clobber our fill mid-flight).
+            requestAnimationFrame(() => applyBarGradients(chart));
+            setTimeout(() => applyBarGradients(chart), 800);
+          },
           render() {
             const chart = this;
-            // Defer past Highcharts' pipeline so our fill changes stick.
             requestAnimationFrame(() => applyBarGradients(chart));
           },
         },
@@ -121,6 +128,15 @@ export function HxBar({ groups, series, compareLine, height = 260, showLegend = 
       legend: { enabled: showLegend },
       tooltip: { shared: true },
       plotOptions: {
+        series: {
+          events: {
+            afterAnimate() {
+              // Fires when the series finishes animating in — guaranteed point
+              // graphics exist by now and Highcharts is done re-painting.
+              applyBarGradients(this.chart);
+            },
+          },
+        },
         column: {
           pointPadding: 0.08,
           groupPadding: 0.12,
