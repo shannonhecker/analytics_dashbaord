@@ -1,13 +1,25 @@
-// Vertical bar (column) with optional secondary line series. Replaces NovaBar.
+// Vertical bar (column) with optional secondary line series.
+// Per-bar opacity scales with value (0.4 → 1.0) — matches the CardPreview
+// thumbnail style where brightness encodes magnitude. Carbon-flat: no gradient,
+// 3px rounded top.
 import React, { useMemo } from 'react';
 import { HxChart } from './HxChart.jsx';
+
+// Map data points to { y, opacity } so each column self-modulates by value.
+function pointsWithOpacity(data) {
+  const max = Math.max(...data.map(Math.abs).filter(Number.isFinite), 1);
+  return data.map((y) => ({
+    y,
+    opacity: 0.4 + (Math.abs(y) / max) * 0.6,
+  }));
+}
 
 export function HxBar({ groups, series, compareLine, height = 260, showLegend = true }) {
   const options = useMemo(() => {
     const seriesArr = series.map((s) => ({
       type: 'column',
       name: s.name,
-      data: s.data,
+      data: pointsWithOpacity(s.data),
       color: s.color,
     }));
     if (compareLine) {
@@ -28,7 +40,13 @@ export function HxBar({ groups, series, compareLine, height = 260, showLegend = 
       legend: { enabled: showLegend },
       tooltip: { shared: true },
       plotOptions: {
-        column: { pointPadding: 0.08, groupPadding: 0.12, borderRadius: 3 },
+        column: {
+          pointPadding: 0.08,
+          groupPadding: 0.12,
+          borderRadius: 3,
+          borderWidth: 0,
+          states: { hover: { brightness: 0.1 } },
+        },
       },
       series: seriesArr,
     };

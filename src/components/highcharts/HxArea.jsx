@@ -3,11 +3,12 @@ import React, { useMemo } from 'react';
 import { HxChart } from './HxChart.jsx';
 import { Highcharts } from './setup.js';
 
-// Build a vertical gradient from a series color (top 35% opacity → bottom 0%).
+// Build a vertical gradient from a series color: top 35% opacity → bottom 0%.
+// Matches the CardPreview thumbnail spec exactly so panel charts and card thumbs
+// share the same visual DNA.
 function gradientFill(color) {
   const stops = [
-    [0, Highcharts.color(color).setOpacity(0.45).get('rgba')],
-    [0.5, Highcharts.color(color).setOpacity(0.15).get('rgba')],
+    [0, Highcharts.color(color).setOpacity(0.35).get('rgba')],
     [1, Highcharts.color(color).setOpacity(0).get('rgba')],
   ];
   return { linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 }, stops };
