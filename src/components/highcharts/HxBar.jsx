@@ -1,21 +1,60 @@
 // Vertical bar (column) with optional secondary line series.
-// Each bar uses a vertical linear gradient (top opacity 1 → bottom 0.45) so
-// columns visually fade from the top, matching the original NovaBar look in
-// the user's reference screenshots.
+//
+// Per-bar vertical gradient (top opacity 1.0 → bottom 0.45) — implemented
+// by injecting <linearGradient> definitions into the chart's <defs> with
+// gradientUnits="objectBoundingBox" so each <rect> bar gets the gradient
+// mapped to its own bounding box. Highcharts' built-in `color: {linearGradient}`
+// API renders into userSpaceOnUse coordinates instead, which makes the gradient
+// span the whole chart canvas — this hook fixes that.
 import React, { useMemo } from 'react';
 import { HxChart } from './HxChart.jsx';
-import { Highcharts } from './setup.js';
 
-// Per-series gradient: top fully opaque, bottom 45% — applied to each bar's
-// bounding box in SVG (default behaviour with relative gradient coordinates).
-function barGradient(color) {
-  return {
-    linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
-    stops: [
-      [0, Highcharts.color(color).setOpacity(1).get('rgba')],
-      [1, Highcharts.color(color).setOpacity(0.45).get('rgba')],
-    ],
-  };
+const SVG_NS = 'http://www.w3.org/2000/svg';
+
+function applyBarGradients(chart) {
+  const svg = chart.container.querySelector('svg');
+  if (!svg) return;
+  let defs = svg.querySelector('defs');
+  if (!defs) {
+    defs = document.createElementNS(SVG_NS, 'defs');
+    svg.insertBefore(defs, svg.firstChild);
+  }
+
+  chart.series.forEach((series, si) => {
+    if (series.type !== 'column') return;
+    const baseColor = series.options.color;
+    // Skip if color isn't a simple string (e.g. already a gradient object)
+    if (typeof baseColor !== 'string') return;
+
+    const gradId = `nova-bar-grad-${chart.index}-${si}`;
+    if (!defs.querySelector(`#${gradId}`)) {
+      const grad = document.createElementNS(SVG_NS, 'linearGradient');
+      grad.setAttribute('id', gradId);
+      grad.setAttribute('gradientUnits', 'objectBoundingBox');
+      grad.setAttribute('x1', '0');
+      grad.setAttribute('y1', '0');
+      grad.setAttribute('x2', '0');
+      grad.setAttribute('y2', '1');
+      const stopTop = document.createElementNS(SVG_NS, 'stop');
+      stopTop.setAttribute('offset', '0%');
+      stopTop.setAttribute('stop-color', baseColor);
+      stopTop.setAttribute('stop-opacity', '1');
+      const stopBottom = document.createElementNS(SVG_NS, 'stop');
+      stopBottom.setAttribute('offset', '100%');
+      stopBottom.setAttribute('stop-color', baseColor);
+      stopBottom.setAttribute('stop-opacity', '0.45');
+      grad.appendChild(stopTop);
+      grad.appendChild(stopBottom);
+      defs.appendChild(grad);
+    }
+
+    // Apply gradient as fill on every column <rect> in this series.
+    series.points.forEach((point) => {
+      const el = point.graphic?.element;
+      if (!el || el.tagName !== 'rect') return;
+      el.setAttribute('fill', `url(#${gradId})`);
+    });
+  });
 }
 
 export function HxBar({ groups, series, compareLine, height = 260, showLegend = true }) {
@@ -24,8 +63,7 @@ export function HxBar({ groups, series, compareLine, height = 260, showLegend = 
       type: 'column',
       name: s.name,
       data: s.data,
-      // `color` accepts a linearGradient — applied per-column, so each bar fades.
-      color: barGradient(s.color),
+      color: s.color, // string — picked up by applyBarGradients hook
     }));
     if (compareLine) {
       seriesArr.push({
@@ -39,7 +77,12 @@ export function HxBar({ groups, series, compareLine, height = 260, showLegend = 
       });
     }
     return {
-      chart: { type: 'column' },
+      chart: {
+        type: 'column',
+        events: {
+          render() { applyBarGradients(this); },
+        },
+      },
       xAxis: { categories: groups, tickLength: 0 },
       yAxis: { gridLineWidth: 1 },
       legend: { enabled: showLegend },
