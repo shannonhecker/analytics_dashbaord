@@ -1,17 +1,21 @@
 // Vertical bar (column) with optional secondary line series.
-// Per-bar opacity scales with value (0.4 → 1.0) — matches the CardPreview
-// thumbnail style where brightness encodes magnitude. Carbon-flat: no gradient,
-// 3px rounded top.
+// Each bar uses a vertical linear gradient (top opacity 1 → bottom 0.45) so
+// columns visually fade from the top, matching the original NovaBar look in
+// the user's reference screenshots.
 import React, { useMemo } from 'react';
 import { HxChart } from './HxChart.jsx';
+import { Highcharts } from './setup.js';
 
-// Map data points to { y, opacity } so each column self-modulates by value.
-function pointsWithOpacity(data) {
-  const max = Math.max(...data.map(Math.abs).filter(Number.isFinite), 1);
-  return data.map((y) => ({
-    y,
-    opacity: 0.4 + (Math.abs(y) / max) * 0.6,
-  }));
+// Per-series gradient: top fully opaque, bottom 45% — applied to each bar's
+// bounding box in SVG (default behaviour with relative gradient coordinates).
+function barGradient(color) {
+  return {
+    linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+    stops: [
+      [0, Highcharts.color(color).setOpacity(1).get('rgba')],
+      [1, Highcharts.color(color).setOpacity(0.45).get('rgba')],
+    ],
+  };
 }
 
 export function HxBar({ groups, series, compareLine, height = 260, showLegend = true }) {
@@ -19,8 +23,9 @@ export function HxBar({ groups, series, compareLine, height = 260, showLegend = 
     const seriesArr = series.map((s) => ({
       type: 'column',
       name: s.name,
-      data: pointsWithOpacity(s.data),
-      color: s.color,
+      data: s.data,
+      // `color` accepts a linearGradient — applied per-column, so each bar fades.
+      color: barGradient(s.color),
     }));
     if (compareLine) {
       seriesArr.push({
