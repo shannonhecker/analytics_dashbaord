@@ -1,58 +1,56 @@
 // Vertical bar (column) with optional secondary line series.
 //
-// Per-bar vertical gradient (top opacity 1.0 → bottom 0.45) — implemented
-// by injecting <linearGradient> definitions into the chart's <defs> with
-// gradientUnits="objectBoundingBox" so each <rect> bar gets the gradient
-// mapped to its own bounding box. Highcharts' built-in `color: {linearGradient}`
-// API renders into userSpaceOnUse coordinates instead, which makes the gradient
-// span the whole chart canvas — this hook fixes that.
+// Per-bar vertical gradient (top opacity 1.0 → bottom 0.45). Implementation:
+//
+// 1. Register one <linearGradient gradientUnits="objectBoundingBox" x1=0 y1=0
+//    x2=0 y2=1> per series in the chart's <defs>, via Highcharts' official
+//    SVGRenderer.definition() API.
+// 2. After every render, walk each column point and override its fill with
+//    `url(#<gradId>)`. Critically, with borderRadius>0 Highcharts renders
+//    columns as <path> elements (not <rect>), so we accept both tags.
+//
+// Why this is needed: Highcharts' built-in `color: { linearGradient }` API
+// hardcodes gradientUnits="userSpaceOnUse", so a bar-shaped gradient on the
+// series color spans the entire chart canvas instead of each bar.
 import React, { useMemo } from 'react';
 import { HxChart } from './HxChart.jsx';
 
-const SVG_NS = 'http://www.w3.org/2000/svg';
-
 function applyBarGradients(chart) {
-  const svg = chart.container.querySelector('svg');
-  if (!svg) return;
-  let defs = svg.querySelector('defs');
-  if (!defs) {
-    defs = document.createElementNS(SVG_NS, 'defs');
-    svg.insertBefore(defs, svg.firstChild);
-  }
+  if (!chart?.renderer || !chart.series) return;
 
   chart.series.forEach((series, si) => {
     if (series.type !== 'column') return;
     const baseColor = series.options.color;
-    // Skip if color isn't a simple string (e.g. already a gradient object)
     if (typeof baseColor !== 'string') return;
 
     const gradId = `nova-bar-grad-${chart.index}-${si}`;
-    if (!defs.querySelector(`#${gradId}`)) {
-      const grad = document.createElementNS(SVG_NS, 'linearGradient');
-      grad.setAttribute('id', gradId);
-      grad.setAttribute('gradientUnits', 'objectBoundingBox');
-      grad.setAttribute('x1', '0');
-      grad.setAttribute('y1', '0');
-      grad.setAttribute('x2', '0');
-      grad.setAttribute('y2', '1');
-      const stopTop = document.createElementNS(SVG_NS, 'stop');
-      stopTop.setAttribute('offset', '0%');
-      stopTop.setAttribute('stop-color', baseColor);
-      stopTop.setAttribute('stop-opacity', '1');
-      const stopBottom = document.createElementNS(SVG_NS, 'stop');
-      stopBottom.setAttribute('offset', '100%');
-      stopBottom.setAttribute('stop-color', baseColor);
-      stopBottom.setAttribute('stop-opacity', '0.45');
-      grad.appendChild(stopTop);
-      grad.appendChild(stopBottom);
-      defs.appendChild(grad);
+
+    // Define gradient once per chart instance (Highcharts' SVGRenderer.definition
+    // keeps it in <defs>, dedupes on subsequent calls).
+    if (!chart._novaBarGradients?.[gradId]) {
+      chart.renderer.definition({
+        tagName: 'linearGradient',
+        attributes: {
+          id: gradId,
+          gradientUnits: 'objectBoundingBox',
+          x1: 0, y1: 0, x2: 0, y2: 1,
+        },
+        children: [
+          { tagName: 'stop', attributes: { offset: '0%',   'stop-color': baseColor, 'stop-opacity': 1 } },
+          { tagName: 'stop', attributes: { offset: '100%', 'stop-color': baseColor, 'stop-opacity': 0.45 } },
+        ],
+      });
+      chart._novaBarGradients = { ...(chart._novaBarGradients || {}), [gradId]: true };
     }
 
-    // Apply gradient as fill on every column <rect> in this series.
+    // Override fill on every column shape — accept rect (no borderRadius) AND
+    // path (when borderRadius > 0, Highcharts uses path for the rounded shape).
     series.points.forEach((point) => {
       const el = point.graphic?.element;
-      if (!el || el.tagName !== 'rect') return;
-      el.setAttribute('fill', `url(#${gradId})`);
+      if (!el) return;
+      if (el.tagName === 'rect' || el.tagName === 'path') {
+        el.setAttribute('fill', `url(#${gradId})`);
+      }
     });
   });
 }
@@ -63,7 +61,7 @@ export function HxBar({ groups, series, compareLine, height = 260, showLegend = 
       type: 'column',
       name: s.name,
       data: s.data,
-      color: s.color, // string — picked up by applyBarGradients hook
+      color: s.color,
     }));
     if (compareLine) {
       seriesArr.push({
