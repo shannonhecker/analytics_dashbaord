@@ -75,11 +75,14 @@ export function HxDonut({ segments, centerLabel, centerSub, height = 260 }) {
     },
     plotOptions: {
       pie: {
-        innerSize: '62%',
+        // Tighter inner ring to match the CardPreview donut thumbnail proportions.
+        innerSize: '70%',
+        // Carbon-flat: solid color slices, thin separator stroke against panel bg.
         borderWidth: 2,
         borderColor: 'var(--bg-elev)',
+        dataLabels: { enabled: false },
         states: {
-          hover: { halo: { size: 6, opacity: 0.15 } },
+          hover: { halo: { size: 6, opacity: 0.15 }, brightness: 0.05 },
           inactive: { opacity: 0.4 },
         },
       },

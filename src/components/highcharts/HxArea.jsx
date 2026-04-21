@@ -4,7 +4,9 @@ import { HxChart } from './HxChart.jsx';
 import { Highcharts, resolveColor } from './setup.js';
 import { PanelEmpty, EMPTY_ICONS } from '../panel-states.jsx';
 
-// Build a vertical gradient from a series color (top 35% opacity → bottom 0%).
+// Build a vertical gradient from a series color: top 35% opacity → bottom 0%.
+// Matches the CardPreview thumbnail spec exactly so panel charts and card thumbs
+// share the same visual DNA.
 function gradientFill(color) {
   const base = resolveColor(color);
   const stops = [
