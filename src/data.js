@@ -19,18 +19,54 @@ function months(n=12, startM=1, startY=24) {
   return out;
 }
 
+// Canonical portfolio totals — referenced by screens instead of hardcoded
+// display literals. All Total-MV, YTD-return, VaR-95 values across the app
+// derive from here.
+export const PORTFOLIO = {
+  totalMv: 2_830_000_000,
+  totalMvDisplay: '$2.83B',
+  mtdReturn: 0.87,
+  ytdReturn: 5.18,
+  ytdReturnDisplay: '+5.18%',
+  activeReturn: 2.13,
+  trackingErr: 2.84,
+  sharpe: 1.42,
+  var95: 46_300_000,
+  var95Display: '$46.3M',
+  var95Pct: 1.64,
+  var99: 54_200_000,
+  cvar: 56_700_000,
+  cvarDisplay: '$56.7M',
+  beta: 1.08,
+  leverage: 1.42,
+  asOf: '14:32 GMT',
+};
+
 export const DATA = {
+  // MV rebalanced to sum exactly to PORTFOLIO.totalMv ($2.83B).
+  // pct = fund MV ÷ totalMv × 100 (actual portfolio weight, not a placeholder).
   portfolios: [
-    { name:'JPM US Aggregate',     ccy:'USD', mv:1257631011.32, pct:100.00, pnl: 3.10, bm: 3.13, excess: -0.03, ytd: 5.18, ytdbm: 3.55, ytdx: 2.13, spark: series(24, 100, 1.2, 4, 0.3)},
-    { name:'Equity Global I',      ccy:'GBP',  mv:430951591.32, pct:100.00, pnl: 3.17, bm: 3.35, excess: -0.18, ytd: 8.85, ytdbm: 9.88, ytdx: -1.03, spark: series(24, 100, 2.1, 5, 0.4)},
-    { name:'Hedge Funds B',        ccy:'USD',  mv:257631011.32, pct:100.00, pnl: 5.53, bm: 0.77, excess: 4.77, ytd:16.10, ytdbm: 2.30, ytdx:14.00, spark: series(24, 100, 0.8, 6, 0.6)},
-    { name:'Fixed Income Corp. C', ccy:'EUR',  mv:275000000.00, pct:100.00, pnl: 1.42, bm: 1.42, excess: 0.00, ytd: 0.14, ytdbm: 0.25, ytdx: -0.11, spark: series(24, 100, 0.4, 7, 0.05)},
-    { name:'Fixed Income Govt. B', ccy:'USD',  mv:228031702.11, pct:100.00, pnl: 1.74, bm: 1.76, excess: -0.02, ytd:-0.20, ytdbm: 0.21, ytdx: -0.41, spark: series(24, 100, 0.3, 8, 0)},
-    { name:'Fixed Income Corp. A', ccy:'USD',  mv:215222349.55, pct:100.00, pnl: 1.73, bm: 1.74, excess: -0.63, ytd: 0.24, ytdbm: 0.21, ytdx: 0.03, spark: series(24, 100, 0.45, 9, 0.1)},
-    { name:'Private Equity B',     ccy:'USD',  mv:163723940.81, pct:100.00, pnl: 0.13, bm: 0.17, excess: -0.04, ytd:-0.07, ytdbm: 2.30, ytdx: -2.37, spark: series(24, 100, 2.5, 10, 1.0)},
-    { name:'Private Equity C',     ccy:'USD',  mv:156652851.24, pct:100.00, pnl: 0.60, bm: 0.30, excess: 0.10, ytd: 1.14, ytdbm: 1.30, ytdx: -0.16, spark: series(24, 100, 2.8, 11, 0.8)},
-    { name:'EM Sovereign Debt',    ccy:'USD',  mv:142180003.10, pct:100.00, pnl: 2.14, bm: 1.98, excess: 0.16, ytd: 4.72, ytdbm: 4.30, ytdx: 0.42, spark: series(24, 100, 1.1, 12, 0.3)},
-    { name:'Commodities Alpha',    ccy:'USD',  mv:98420113.44,  pct:100.00, pnl:-1.22, bm:-0.91, excess:-0.31, ytd:-3.48, ytdbm:-2.20, ytdx: -1.28, spark: series(24, 100, 3.0, 13, -0.4)},
+    { name:'JPM US Aggregate',     ccy:'USD', mv:1_103_600_000, pct:39.00, pnl: 3.10, bm: 3.13, excess: -0.03, ytd: 5.18, ytdbm: 3.55, ytdx: 2.13, spark: series(24, 100, 1.2, 4, 0.3)},
+    { name:'Equity Global I',      ccy:'GBP', mv:  378_200_000, pct:13.37, pnl: 3.17, bm: 3.35, excess: -0.18, ytd: 8.85, ytdbm: 9.88, ytdx: -1.03, spark: series(24, 100, 2.1, 5, 0.4)},
+    { name:'Fixed Income Corp. C', ccy:'EUR', mv:  241_400_000, pct: 8.53, pnl: 1.42, bm: 1.42, excess: 0.00, ytd: 0.14, ytdbm: 0.25, ytdx: -0.11, spark: series(24, 100, 0.4, 7, 0.05)},
+    { name:'Hedge Funds B',        ccy:'USD', mv:  226_100_000, pct: 7.99, pnl: 5.53, bm: 0.77, excess: 4.77, ytd:16.10, ytdbm: 2.30, ytdx:14.00, spark: series(24, 100, 0.8, 6, 0.6)},
+    { name:'Fixed Income Govt. B', ccy:'USD', mv:  200_100_000, pct: 7.07, pnl: 1.74, bm: 1.76, excess: -0.02, ytd:-0.20, ytdbm: 0.21, ytdx: -0.41, spark: series(24, 100, 0.3, 8, 0)},
+    { name:'Fixed Income Corp. A', ccy:'USD', mv:  188_900_000, pct: 6.68, pnl: 1.73, bm: 1.74, excess: -0.63, ytd: 0.24, ytdbm: 0.21, ytdx: 0.03, spark: series(24, 100, 0.45, 9, 0.1)},
+    { name:'Private Equity B',     ccy:'USD', mv:  143_700_000, pct: 5.08, pnl: 0.13, bm: 0.17, excess: -0.04, ytd:-0.07, ytdbm: 2.30, ytdx: -2.37, spark: series(24, 100, 2.5, 10, 1.0)},
+    { name:'Private Equity C',     ccy:'USD', mv:  137_500_000, pct: 4.86, pnl: 0.60, bm: 0.30, excess: 0.10, ytd: 1.14, ytdbm: 1.30, ytdx: -0.16, spark: series(24, 100, 2.8, 11, 0.8)},
+    { name:'EM Sovereign Debt',    ccy:'USD', mv:  124_800_000, pct: 4.41, pnl: 2.14, bm: 1.98, excess: 0.16, ytd: 4.72, ytdbm: 4.30, ytdx: 0.42, spark: series(24, 100, 1.1, 12, 0.3)},
+    { name:'Commodities Alpha',    ccy:'USD', mv:   85_700_000, pct: 3.03, pnl:-1.22, bm:-0.91, excess:-0.31, ytd:-3.48, ytdbm:-2.20, ytdx: -1.28, spark: series(24, 100, 3.0, 13, -0.4)},
+  ],
+
+  // Canonical 6-segment asset allocation — used by every donut in the app.
+  // Percentages sum to 100. Matches PORTFOLIO.totalMv.
+  allocation: [
+    { cls:'Equities',          target:40.0, actual:40.8, color:'var(--c1)' },
+    { cls:'Corporate Bonds',   target:25.0, actual:25.0, color:'var(--c2)' },
+    { cls:'Government Bonds',  target:15.0, actual:12.2, color:'var(--c3)' },
+    { cls:'Private Equity',    target:10.0, actual:11.0, color:'var(--c4)' },
+    { cls:'Hedge Funds',       target: 8.0, actual: 8.0, color:'var(--c5)' },
+    { cls:'Cash & Other',      target: 2.0, actual: 3.0, color:'var(--c6)' },
   ],
   allocationHistory: {
     labels: Array.from({length:24},(_,i)=>`'${String(2*i+1).padStart(2,'0')}`),
@@ -42,13 +78,15 @@ export const DATA = {
       { name:'Hedge Funds',  data: series(24, 8,  0.5, 25, 0.02),  color:'var(--c5)'},
     ]
   },
+  // Aggregate MV matches PORTFOLIO.totalMv ($2.83B).
+  // Fund MVs scaled so mvpct × totalMv = mv (internally consistent).
   riskSummary: [
-    { view:'Aggregate', mv:1000000000, mvpct:100,  var95:46267109, var95p:4.63, var99:54217109, var99p:4.83, mvar:46267109, mvarp:4.42, cvar:56701898, cvarp:5.67 },
-    { view:'Fund 1',    mv:300000000, mvpct:30.0, var95:5285535, var95p:1.76, var99:13285199, var99p:3.94, mvar:2635057, mvarp:0.88, cvar:6421080, cvarp:2.14 },
-    { view:'Fund 2',    mv:550000000, mvpct:55.0, var95:28511057, var95p:4.35, var99:35441261, var99p:4.78, mvar:31045069, mvarp:4.91, cvar:38551095, cvarp:5.98 },
-    { view:'Fund 3',    mv:50000000, mvpct:5.0,  var95:3119515, var95p:6.24, var99:2210856, var99p:4.90, mvar:2576556, mvarp:5.36, cvar:3771842, cvarp:7.54 },
-    { view:'Fund 4',    mv:80000000, mvpct:8.0,  var95:2915040, var95p:3.64, var99:3280130, var99p:4.10, mvar:2550050, mvarp:3.19, cvar:3811120, cvarp:4.76 },
-    { view:'Fund 5',    mv:20000000, mvpct:2.0,  var95:1085001, var95p:5.43, var99:1241220, var99p:6.21, mvar:980500, mvarp:4.90, cvar:1495201, cvarp:7.48 },
+    { view:'Aggregate', mv:2_830_000_000, mvpct:100,  var95:46_267_109, var95p:1.64, var99:54_217_109, var99p:1.92, mvar:46_267_109, mvarp:1.64, cvar:56_701_898, cvarp:2.00 },
+    { view:'Fund 1',    mv:  849_000_000, mvpct:30.0, var95:14_966_859, var95p:1.76, var99:33_450_600, var99p:3.94, mvar: 7_471_200, mvarp:0.88, cvar:18_168_600, cvarp:2.14 },
+    { view:'Fund 2',    mv:1_556_500_000, mvpct:55.0, var95:67_707_750, var95p:4.35, var99:74_400_700, var99p:4.78, mvar:76_424_150, mvarp:4.91, cvar:93_078_700, cvarp:5.98 },
+    { view:'Fund 3',    mv:  141_500_000, mvpct: 5.0, var95: 8_829_600, var95p:6.24, var99: 6_933_500, var99p:4.90, mvar: 7_584_400, mvarp:5.36, cvar:10_669_100, cvarp:7.54 },
+    { view:'Fund 4',    mv:  226_400_000, mvpct: 8.0, var95: 8_240_960, var95p:3.64, var99: 9_282_400, var99p:4.10, mvar: 7_222_160, mvarp:3.19, cvar:10_776_640, cvarp:4.76 },
+    { view:'Fund 5',    mv:   56_600_000, mvpct: 2.0, var95: 3_073_380, var95p:5.43, var99: 3_514_860, var99p:6.21, mvar: 2_773_400, mvarp:4.90, cvar: 4_233_680, cvarp:7.48 },
   ],
   mvByCurrency: {
     labels: ['USD','EUR','GBP','JPY','CAD','AUD','CHF','HKD','SGD'],
@@ -129,7 +167,8 @@ export const DATA = {
       { name:'Orion Holdings',    score:85, e:85, s:85,  g:85 },
       { name:'Sable & Co.',       score:82, e:80, s:80,  g:90 },
     ],
-    revenue: series(12, 2800, 120, 42, 80),
+    revenue:  series(12, 2800, 120, 42, 80),
+    exposure: series(12, 2920, 100, 43, 60),
   },
   varTrend: {
     labels: months(12, 4, 25),

@@ -16,6 +16,8 @@
 // pipeline finishes painting columns.
 import React, { useMemo } from 'react';
 import { HxChart } from './HxChart.jsx';
+import { carbonGradient } from './setup.js';
+import { PanelEmpty, EMPTY_ICONS } from '../panel-states.jsx';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
@@ -87,12 +89,15 @@ function applyBarGradients(chart) {
 }
 
 export function HxBar({ groups, series, compareLine, height = 260, showLegend = true }) {
+  const hasData = Array.isArray(series) && series.length > 0 && series.some((s) => Array.isArray(s?.data) && s.data.length > 0);
+  if (!hasData) return <div style={{height}}><PanelEmpty icon={EMPTY_ICONS.chart} title="No data" helper="No comparison available for this view."/></div>;
+
   const options = useMemo(() => {
     const seriesArr = series.map((s) => ({
       type: 'column',
       name: s.name,
       data: s.data,
-      color: s.color,
+      color: carbonGradient(s.color),
     }));
     if (compareLine) {
       seriesArr.push({
@@ -101,7 +106,14 @@ export function HxBar({ groups, series, compareLine, height = 260, showLegend = 
         data: compareLine.data,
         color: compareLine.color,
         lineWidth: 2,
-        marker: { enabled: true, radius: 3, lineWidth: 2, fillColor: 'var(--bg-elev)' },
+        marker: {
+          enabled: true,
+          radius: 3.5,
+          lineWidth: 1.5,
+          fillColor: compareLine.color,
+          lineColor: 'var(--bg-elev)',
+          states: { hover: { radius: 5, lineWidth: 2, fillColor: compareLine.color, lineColor: 'var(--bg-elev)' } },
+        },
         zIndex: 5,
       });
     }
@@ -128,22 +140,7 @@ export function HxBar({ groups, series, compareLine, height = 260, showLegend = 
       legend: { enabled: showLegend },
       tooltip: { shared: true },
       plotOptions: {
-        series: {
-          events: {
-            afterAnimate() {
-              // Fires when the series finishes animating in — guaranteed point
-              // graphics exist by now and Highcharts is done re-painting.
-              applyBarGradients(this.chart);
-            },
-          },
-        },
-        column: {
-          pointPadding: 0.08,
-          groupPadding: 0.12,
-          borderRadius: 3,
-          borderWidth: 0,
-          states: { hover: { brightness: 0.1 } },
-        },
+        column: { pointPadding: 0.08, groupPadding: 0.12, borderRadius: 4 },
       },
       series: seriesArr,
     };

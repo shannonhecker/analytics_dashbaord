@@ -1,61 +1,222 @@
-/* AG Grid Quartz theme — overridden to match Carbon-derived locked palette.
-   Applied via the `.ag-theme-quartz.nova-grid` selector wrapper in NovaGrid. */
+/* AG Grid Quartz theme — Carbon-derived, premium-institutional refresh.
+   Reference space: Bloomberg Terminal, Aladdin, Addepar; grounded in Carbon v11.
+   Wrapper class `.ag-theme-quartz.nova-grid` is set on the grid container.
+   Density is driven by `[data-density]` on the wrapper (compact/standard/comfortable). */
+
 .nova-grid {
+  /* Surfaces */
   --ag-background-color: var(--bg-elev);
   --ag-foreground-color: var(--ink);
+  --ag-data-color: var(--ink);
   --ag-secondary-foreground-color: var(--ink-2);
   --ag-disabled-foreground-color: var(--ink-4);
 
-  --ag-header-background-color: var(--bg-sunken);
+  /* Header matches body surface — emphasis comes from font-weight, not a
+     filled chrome bar. Carbon v11 pattern. */
+  --ag-header-background-color: var(--bg-elev);
   --ag-header-foreground-color: var(--ink-3);
-  --ag-header-cell-hover-background-color: var(--bg-hover);
-  --ag-header-column-resize-handle-color: var(--line-strong);
+  --ag-header-cell-hover-background-color: color-mix(in srgb, var(--ink) 4%, transparent);
+  --ag-header-column-resize-handle-color: var(--line);
 
+  /* No zebra — flat rows, state-only differentiation. */
   --ag-odd-row-background-color: var(--bg-elev);
-  --ag-row-hover-color: var(--bg-hover);
-  --ag-selected-row-background-color: var(--accent-soft);
 
+  /* Row state — matches the Attention panel (NovaAlertRow) exactly:
+     4% accent tint over transparent on hover, 10% for selected.
+     Single source of truth across list-style interactions. */
+  --ag-row-hover-color: color-mix(in srgb, var(--accent) 4%, transparent);
+  --ag-selected-row-background-color: color-mix(in srgb, var(--accent) 10%, transparent);
+
+  /* Borders — row separators match the Attention row (NovaAlertRow): plain
+     --line-faint. Explicit override on .ag-row below so Quartz doesn't
+     paint its own stronger line via a different selector. */
+  --ag-borders: none;
   --ag-border-color: var(--line);
   --ag-row-border-color: var(--line-faint);
   --ag-cell-horizontal-border: solid transparent;
 
+  /* Typography — body at fs-md (13px), tabular numerals via mono utility. */
   --ag-font-family: var(--font-ui);
   --ag-font-size: 13px;
 
-  --ag-grid-size: 6px;
+  /* Size scale — grid-size multiplies everything. 9px standard yields
+     ≈52px rows (grid-size * ~5.7) — retail-finance density, more breathing
+     than Carbon's 40px md. */
+  --ag-grid-size: 9px;
   --ag-cell-horizontal-padding: 14px;
 
+  /* Focus, range, checkbox */
   --ag-input-focus-border-color: var(--accent);
   --ag-input-focus-box-shadow: 0 0 0 2px var(--accent-soft);
   --ag-checkbox-checked-color: var(--accent);
-  --ag-range-selection-border-color: var(--accent);
-  --ag-range-selection-background-color: var(--accent-soft);
 
-  --ag-side-bar-panel-width: 260px;
+  /* Range selection — Bloomberg-style dashed accent border over subtle tint. */
+  --ag-range-selection-border-color: var(--accent);
+  --ag-range-selection-border-style: dashed;
+  --ag-range-selection-background-color: color-mix(in srgb, var(--accent) 8%, transparent);
+
+  /* Side panel + tool panel */
+  --ag-side-bar-panel-width: 280px;
   --ag-control-panel-background-color: var(--bg-elev);
   --ag-subheader-background-color: var(--bg-sunken);
   --ag-subheader-toolbar-background-color: var(--bg-sunken);
 
+  /* Icons — slightly larger than before so sort chevrons don't feel lost. */
   --ag-icon-font-color: var(--ink-3);
   --ag-icon-size: 14px;
 
   --ag-tooltip-background-color: var(--bg-elev-2);
 
-  border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  box-shadow: var(--shadow-sm);
+  /* NO outer frame on the grid itself — every NovaGrid call site wraps in a
+     NovaPanel that already provides the border + radius + shadow. Doubled
+     chrome was the primary "looks off" symptom. */
 }
 
-/* Header tighter, uppercase like our other tables */
+/* The AG Grid Quartz theme applies a border on .ag-root-wrapper that the
+   --ag-borders: none variable doesn't always suppress. All grid wrappers
+   are transparent so the page background bleeds through — grid reads as a
+   list on the page, not a boxed table. Only row separators and state
+   tints give structure. */
+.nova-grid .ag-root-wrapper,
+.nova-grid .ag-root-wrapper-body,
+.nova-grid .ag-root,
+.nova-grid .ag-center-cols-clipper,
+.nova-grid .ag-center-cols-container {
+  border-color: transparent !important;
+  background: transparent !important;
+}
+
+/* Density variants — compact 36px / standard 52px / comfortable 64px row.
+   Standard matches TradingView-style retail-finance breathing room. */
+.nova-grid[data-density="compact"]      { --ag-grid-size: 6px;  --ag-font-size: 12.5px; }
+.nova-grid[data-density="standard"]     { --ag-grid-size: 9px;  --ag-font-size: 13px; }
+.nova-grid[data-density="comfortable"]  { --ag-grid-size: 11px; --ag-font-size: 13.5px; }
+
+/* Header — same surface as body, weight carries the hierarchy.
+   Bottom border matches the row separator (--line-faint) so the table
+   reads as a pure stack of horizontal rules — no outer frame. */
+.nova-grid .ag-header {
+  border-bottom: 1px solid var(--line-faint);
+}
 .nova-grid .ag-header-cell-text {
-  font-size: 10.5px;
+  font-size: 12.5px;
   font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  letter-spacing: 0.015em;
+  color: var(--ink-3);
+  text-transform: none;
+}
+.nova-grid .ag-header-cell-sortable .ag-header-cell-label:hover .ag-header-cell-text {
+  color: var(--ink-2);
+}
+.nova-grid .ag-header-cell-sorted-asc .ag-header-cell-text,
+.nova-grid .ag-header-cell-sorted-desc .ag-header-cell-text {
+  color: var(--ink);
+  font-weight: 700;
+}
+.nova-grid .ag-sort-indicator-container .ag-icon {
+  font-size: 13px;
+  color: var(--ink-3);
 }
 
-/* Side panel tabs — sit on the right, collapsed by default */
+/* Column resize handle — invisible until header hover, then subtle accent
+   line to cue the affordance. */
+.nova-grid .ag-header-cell .ag-header-cell-resize::after {
+  background: transparent;
+  transition: background 120ms, opacity 120ms;
+  opacity: 0;
+  width: 1px;
+}
+.nova-grid .ag-header-cell:hover .ag-header-cell-resize::after,
+.nova-grid .ag-header-cell.ag-header-cell-resizing .ag-header-cell-resize::after {
+  background: var(--accent);
+  opacity: 0.55;
+}
+
+/* Header menu + filter icons hide on idle, reveal on header hover.
+   Sorted columns keep their sort arrow visible; active filters keep the
+   filter icon visible. Everything else fades out so the label leads. */
+.nova-grid .ag-header-cell .ag-header-icon.ag-header-cell-menu-button,
+.nova-grid .ag-header-cell .ag-header-cell-filter-button {
+  opacity: 0;
+  transition: opacity 120ms;
+}
+.nova-grid .ag-header-cell:hover .ag-header-icon.ag-header-cell-menu-button,
+.nova-grid .ag-header-cell:focus-within .ag-header-icon.ag-header-cell-menu-button,
+.nova-grid .ag-header-cell:hover .ag-header-cell-filter-button,
+.nova-grid .ag-header-cell:focus-within .ag-header-cell-filter-button,
+.nova-grid .ag-header-cell.ag-header-cell-filtered .ag-header-cell-filter-button {
+  opacity: 1;
+}
+
+/* Explicit cell text color — Quartz falls back to its own dim default for
+   plain-text cells (no custom cellRenderer) unless --ag-data-color is set
+   AND the CSS rule is direct. This catches both paths. */
+.nova-grid .ag-cell {
+  color: var(--ink);
+}
+
+/* Numeric columns (type:"numericColumn") get tabular-nums in the UI font —
+   retail-finance aesthetic, not terminal-mono. Cells that explicitly opt
+   into `.mono` or `.num` keep the monospace family. */
+.nova-grid .ag-right-aligned-cell {
+  font-feature-settings: "tnum", "zero";
+  font-variant-numeric: tabular-nums;
+  justify-content: flex-end;
+}
+.nova-grid .ag-cell.mono,
+.nova-grid .ag-cell.num {
+  font-family: var(--font-mono);
+  font-feature-settings: "tnum", "zero";
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.005em;
+}
+.nova-grid .ag-right-aligned-header .ag-header-cell-label {
+  justify-content: flex-end;
+}
+
+/* Rows — transparent base, soft separator, accent-tinted hover.
+   Direct `!important` overrides with explicit border shorthand + hex-
+   resolved colors beat AG Grid Quartz's internal rules that sometimes
+   win the cascade via higher-specificity selectors or theme layering. */
+.nova-grid .ag-row,
+.nova-grid .ag-row-even,
+.nova-grid .ag-row-odd {
+  cursor: pointer;
+  transition: background-color 120ms;
+  background-color: transparent !important;
+  border-bottom: 1px solid var(--line-faint) !important;
+  border-top: 0 !important;
+}
+/* Hover — match the Attention row (NovaAlertRow) exactly: 4% accent over
+   transparent. Target both the JS-added `.ag-row-hover` class AND the
+   `:hover` pseudo so Quartz's neutral-gray default is fully replaced. */
+.nova-grid .ag-row-hover,
+.nova-grid .ag-row:hover,
+.nova-grid .ag-row-even.ag-row-hover,
+.nova-grid .ag-row-odd.ag-row-hover,
+.nova-grid .ag-row-even:hover,
+.nova-grid .ag-row-odd:hover {
+  background-color: color-mix(in srgb, var(--accent) 4%, transparent) !important;
+}
+.nova-grid .ag-row-selected {
+  background-color: color-mix(in srgb, var(--accent) 10%, transparent) !important;
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+/* Pinned columns — floating shadow sourced from theme-aware tokens
+   (was raw rgba literals — now respects light/dark scale). */
+.nova-grid .ag-pinned-left-cols-container,
+.nova-grid .ag-pinned-left-header {
+  box-shadow: var(--shadow-pinned-left);
+  z-index: 1;
+}
+.nova-grid .ag-pinned-right-cols-container,
+.nova-grid .ag-pinned-right-header {
+  box-shadow: var(--shadow-pinned-right);
+  z-index: 1;
+}
+
+/* Side panel tabs — sit on the right, collapsed by default. */
 .nova-grid .ag-side-buttons {
   background: var(--bg-sunken);
   border-left: 1px solid var(--line);
@@ -76,7 +237,7 @@
   border-left: 2px solid var(--accent);
 }
 
-/* Tool panel headers */
+/* Tool panel headers. */
 .nova-grid .ag-tool-panel-wrapper {
   background: var(--bg-elev);
 }
@@ -87,12 +248,70 @@
   padding: 8px 12px;
 }
 
-/* Row hover/selection lift */
-.nova-grid .ag-row {
-  cursor: pointer;
+/* Quick filter input above the grid — rounded top; flush bottom when a grid follows. */
+.nova-grid-quickfilter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  border-bottom: 0;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
-.nova-grid .ag-row-hover {
-  box-shadow: inset 3px 0 0 var(--accent);
+.nova-grid-quickfilter input {
+  flex: 1;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font-size: 13px;
+  color: var(--ink);
+  font-family: var(--font-ui);
+}
+.nova-grid-quickfilter input::placeholder {
+  color: var(--ink-4);
+}
+.nova-grid-quickfilter .nova-grid-quickfilter-icon {
+  color: var(--ink-4);
+  font-size: 14px;
+}
+.nova-grid-quickfilter .nova-grid-quickfilter-count {
+  font-size: var(--fs-xs);
+  color: var(--ink-4);
+  font-family: var(--font-mono);
+  white-space: nowrap;
+}
+.nova-grid-with-quickfilter {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
 }
 
-/* AG Grid eval-mode watermark — leave as-is, it's a license signal. */
+/* Loading center text — the PanelSkeleton overlay usually covers this; only
+   shows briefly if the skeleton hasn't mounted yet. */
+.nova-grid .ag-loading-center {
+  background: transparent;
+  color: var(--ink-4);
+  font-size: var(--fs-xs);
+  font-family: var(--font-mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Group / aggregation rows — heavier weight + tinted bg + clearer top edge. */
+.nova-grid .ag-row-group,
+.nova-grid .ag-row-footer {
+  background: var(--bg-sunken);
+  font-weight: 600;
+  color: var(--ink);
+  border-top: 1px solid var(--line);
+}
+
+/* Cell focus — outline (no layout shift), only when not part of a range. */
+.nova-grid .ag-cell-focus:not(.ag-cell-range-selected) {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+  border: 0 !important;
+}
+
+/* Range selection uses AG Grid's built-in border rendering via the variables
+   set above — no additional CSS needed. */
