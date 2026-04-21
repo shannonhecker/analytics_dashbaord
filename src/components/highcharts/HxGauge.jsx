@@ -11,9 +11,10 @@ export function HxGauge({ value, min = 0, max = 10, label, color = 'var(--accent
       size: '160%',
       startAngle: -90,
       endAngle: 90,
+      // Carbon-flat track: thin sunken arc matching the CardPreview gauge thumb.
       background: [{
         backgroundColor: 'var(--bg-sunken)',
-        innerRadius: '88%',
+        innerRadius: '92%',
         outerRadius: '100%',
         shape: 'arc',
         borderWidth: 0,
@@ -32,7 +33,8 @@ export function HxGauge({ value, min = 0, max = 10, label, color = 'var(--accent
     legend: { enabled: false },
     plotOptions: {
       solidgauge: {
-        innerRadius: '88%',
+        // Match track radii so fill sits cleanly on the sunken track.
+        innerRadius: '92%',
         radius: '100%',
         rounded: true,
         dataLabels: {
