@@ -64,7 +64,7 @@ export function Issuer() {
       <div style={{display:'grid', gridTemplateColumns:panelCols, gap:16}}>
         <NovaPanel title="ESG Rating" subtitle="Current">
           <div style={{display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'20px 0'}}>
-            <div className="mono grad-text" style={{fontSize:'var(--fs-display)', fontWeight:700, lineHeight:1, letterSpacing:'-0.04em'}}>{d.esg}</div>
+            <div className="mono grad-text" style={{fontSize:'var(--fs-3xl)', fontWeight:700, lineHeight:1, letterSpacing:'-0.04em'}}>{d.esg}</div>
             <div style={{fontSize:'var(--fs-xs)', color:'var(--ink-3)', marginTop:6}}>Industry mode: <span style={{fontWeight:500, color:'var(--ink-2)'}}>B</span></div>
           </div>
         </NovaPanel>
