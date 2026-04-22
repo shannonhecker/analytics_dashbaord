@@ -84,7 +84,7 @@ export function HomeMinimal({ openDash }) {
       {/* Greeting + status */}
       <div style={{display:'flex', justifyContent:'space-between', alignItems:'baseline', borderBottom:'1px solid var(--line-faint)', paddingBottom:20}}>
         <div>
-          <div style={{fontSize:24, fontWeight:600, color:'var(--ink)', letterSpacing:'-0.02em'}}>{greeting}, Shannon</div>
+          <div style={{fontSize:24, fontWeight:400, color:'var(--ink-3)', letterSpacing:'-0.02em'}}>{greeting}, Shannon</div>
           <div style={{fontSize:'var(--fs-md)', color:'var(--ink-3)', marginTop:6}}>Your portfolio is up <span style={{color:'var(--pos)', fontWeight:600}}>{PORTFOLIO.ytdReturn.toFixed(2)}%</span> year-to-date · {ALERTS.length} items need attention</div>
         </div>
         <div style={{display:'flex', alignItems:'center', gap:8, fontSize:'var(--fs-xs)', color:'var(--ink-4)', fontFamily:'var(--font-mono)'}}>
