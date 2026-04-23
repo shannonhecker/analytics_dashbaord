@@ -14,11 +14,12 @@ import { usePortfolio, useSparks, useLiveAlerts } from '../live.jsx';
 
 // Fallback used until the first live tick arrives; after that useLiveAlerts()
 // supplies a growing feed with server-driven perturbations.
+// Meta format is terse (2m / 14m / 1h / 4h) — canonical across all alert surfaces.
 const ALERTS_FALLBACK = [
-  { sev:'high', cat:'Issuer', text:'Meridian Industries downgraded AA → A+ by S&P', meta:'2 min ago', dest:'issuer' },
-  { sev:'med',  cat:'Limit',  text:'Equity sleeve VaR at 92% of policy limit',       meta:'14 min ago', dest:'risk' },
-  { sev:'med',  cat:'Concentration', text:'Tech sector weight 35.4% (cap 35%)',       meta:'1 hr ago',   dest:'risk' },
-  { sev:'low',  cat:'ESG',    text:'3 holdings flagged on new climate methodology',   meta:'4 hr ago',   dest:'esg' },
+  { sev:'high', cat:'Issuer', text:'Meridian Industries downgraded AA → A+ by S&P', meta:'2m', dest:'issuer' },
+  { sev:'med',  cat:'Limit',  text:'Equity sleeve VaR at 92% of policy limit',       meta:'14m', dest:'risk' },
+  { sev:'med',  cat:'Concentration', text:'Tech sector weight 35.4% (cap 35%)',       meta:'1h',   dest:'risk' },
+  { sev:'low',  cat:'ESG',    text:'3 holdings flagged on new climate methodology',   meta:'4h',   dest:'esg' },
 ];
 
 const TOP_CONTRIBUTORS = [
@@ -79,22 +80,22 @@ export function HomeMinimal({ openDash }) {
   const allocCols = isMobile || isTablet ? '1fr' : '1fr 1.4fr';
 
   return (
-    <div style={{flex:1, overflow:'auto', padding:'clamp(20px, 4vw, 40px) clamp(16px, 4vw, 40px) 40px', display:'flex', flexDirection:'column', gap:32, width:'100%', maxWidth:1600, margin:'0 auto'}}>
+    <div style={{flex:1, overflow:'auto', padding:'var(--screen-pad)', display:'flex', flexDirection:'column', gap:'var(--gap-xl)', width:'100%', maxWidth:1600, margin:'0 auto'}}>
 
-      {/* Greeting + status */}
+      {/* Greeting + status — greeting intentionally demoted so portfolio KPIs lead the scan. */}
       <div style={{display:'flex', justifyContent:'space-between', alignItems:'baseline', borderBottom:'1px solid var(--line-faint)', paddingBottom:20}}>
         <div>
-          <div style={{fontSize:24, fontWeight:400, color:'var(--ink-3)', letterSpacing:'-0.02em'}}>{greeting}, Shannon</div>
+          <div style={{fontSize:'var(--fs-lg)', fontWeight:400, color:'var(--ink-3)', letterSpacing:'-0.01em'}}>{greeting}, Shannon</div>
           <div style={{fontSize:'var(--fs-md)', color:'var(--ink-3)', marginTop:6}}>Your portfolio is up <span style={{color:'var(--pos)', fontWeight:600}}>{PORTFOLIO.ytdReturn.toFixed(2)}%</span> year-to-date · {ALERTS.length} items need attention</div>
         </div>
-        <div style={{display:'flex', alignItems:'center', gap:8, fontSize:'var(--fs-xs)', color:'var(--ink-4)', fontFamily:'var(--font-mono)'}}>
+        <div aria-live="polite" aria-atomic="true" style={{display:'flex', alignItems:'center', gap:8, fontSize:'var(--fs-xs)', color:'var(--ink-4)', fontFamily:'var(--font-mono)'}}>
           <span aria-hidden="true" style={{width:6, height:6, borderRadius:'50%', background:'var(--pos)'}}/>
           LIVE · As of {PORTFOLIO.asOf}
         </div>
       </div>
 
       {/* Hero numbers — 3 only, generous space */}
-      <div style={{display:'grid', gridTemplateColumns:heroCols, gap: isMobile ? 24 : 48, padding:'8px 0'}}>
+      <div style={{display:'grid', gridTemplateColumns:heroCols, gap: isMobile ? 'var(--gap-lg)' : 48, padding:'8px 0'}}>
         <HeroKpi variant="large" label="Total assets"  value={PORTFOLIO.totalMvDisplay}   delta={2.41}  spark={sparks?.totalMv   ?? series(20,100,2,101,0.5)}/>
         <HeroKpi variant="large" label="YTD return"    value={PORTFOLIO.ytdReturnDisplay} delta={1.63}  deltaSuffix="pts vs bench" spark={sparks?.ytdReturn ?? series(20,100,2.2,103,0.8)}/>
         <HeroKpi variant="large" label="VaR (95%, 1d)" value={PORTFOLIO.var95Display}    delta={-0.42} tone="neutral" spark={sparks?.var95     ?? series(20,100,1.5,102,0.4)}/>
@@ -104,7 +105,7 @@ export function HomeMinimal({ openDash }) {
       <NovaPanel
         title="Attention"
         subtitle={`${ALERTS.length} items · sorted by severity`}
-        actions={<button className="nova-link">View all alerts →</button>}
+        actions={<button className="nova-link" disabled title="Coming soon" style={{opacity:0.5, cursor:'not-allowed'}}>View all alerts →</button>}
       >
         <div style={{borderTop:'1px solid var(--line-faint)'}}>
           {ALERTS.map((a,i) => <NovaAlertRow key={i} sev={a.sev} cat={a.cat} text={a.text} meta={a.meta} onClick={()=>openDash?.(a.dest)}/>)}
@@ -112,17 +113,17 @@ export function HomeMinimal({ openDash }) {
       </NovaPanel>
 
       {/* Performance + Risk twin */}
-      <div style={{display:'grid', gridTemplateColumns:twinCols, gap:24}}>
+      <div style={{display:'grid', gridTemplateColumns:twinCols, gap:'var(--gap-lg)'}}>
         <NovaPanel title="Performance" subtitle="Portfolio vs benchmark · 24 months">
           <HxArea series={DATA.allocationHistory.series.slice(0,2)} labels={DATA.allocationHistory.labels} height={CHART_HEIGHT.sm} showLegend={false}/>
-          <div style={{marginTop:16, paddingTop:16, borderTop:'1px solid var(--line-faint)'}}>
-            <div style={{fontSize:'var(--fs-xs)', color:'var(--ink-4)', fontWeight:600, letterSpacing:'0.06em', textTransform:'uppercase', marginBottom:12}}>Top contributors · YTD</div>
+          <div style={{marginTop:'var(--gap-md)', paddingTop:'var(--gap-md)', borderTop:'1px solid var(--line-faint)'}}>
+            <div style={{fontSize:'var(--fs-xs)', color:'var(--ink-4)', fontWeight:600, letterSpacing:'0.06em', textTransform:'uppercase', marginBottom:'var(--gap-sm)'}}>Top contributors · YTD</div>
             <ContributorBars/>
           </div>
         </NovaPanel>
         <NovaPanel title="Risk" subtitle="Contribution by risk type">
           <HxBar groups={DATA.riskContribution.labels} series={DATA.riskContribution.data.slice(1)} height={CHART_HEIGHT.sm} showLegend={false}/>
-          <div style={{marginTop:16, paddingTop:16, borderTop:'1px solid var(--line-faint)', display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:24}}>
+          <div style={{marginTop:'var(--gap-md)', paddingTop:'var(--gap-md)', borderTop:'1px solid var(--line-faint)', display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'var(--gap-lg)'}}>
             {[
               { l:'VaR 95%', v:'$46.3M', d:'4.63%' },
               { l:'CVaR',    v:'$56.7M', d:'5.67%' },
@@ -130,7 +131,7 @@ export function HomeMinimal({ openDash }) {
             ].map(m=>(
               <div key={m.l}>
                 <div style={{fontSize:'var(--fs-2xs)', color:'var(--ink-4)', fontWeight:600, letterSpacing:'0.06em', textTransform:'uppercase', marginBottom:4}}>{m.l}</div>
-                <div className="mono" style={{fontSize:18, fontWeight:600, color:'var(--ink)', letterSpacing:'-0.02em'}}>{m.v}</div>
+                <div className="mono" style={{fontSize:'var(--fs-display-sm)', fontWeight:600, color:'var(--ink)', letterSpacing:'-0.02em'}}>{m.v}</div>
                 <div style={{fontSize:'var(--fs-2xs)', color:'var(--ink-4)', marginTop:2}}>{m.d}</div>
               </div>
             ))}
@@ -140,7 +141,7 @@ export function HomeMinimal({ openDash }) {
 
       {/* Allocation + drift */}
       <NovaPanel title="Allocation" subtitle="Current snapshot vs target weights">
-        <div style={{display:'grid', gridTemplateColumns:allocCols, gap:32, alignItems:'center'}}>
+        <div style={{display:'grid', gridTemplateColumns:allocCols, gap:'var(--gap-xl)', alignItems:'center'}}>
           <div>
             <HxDonut segments={DRIFT.map(d=>({label:d.cls, value:d.actual, color:d.color}))} height={CHART_HEIGHT.md}/>
           </div>
@@ -157,10 +158,10 @@ export function HomeMinimal({ openDash }) {
         </div>
       </NovaPanel>
 
-      {/* Footer */}
+      {/* Footer — timestamp bound to live asOf instead of a hardcoded value. */}
       <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', padding:'12px 0', borderTop:'1px solid var(--line-faint)', fontSize:'var(--fs-sm)', color:'var(--ink-4)'}}>
-        <span>Last reconciled at 14:32 GMT · Source: BNY Mellon, Aladdin</span>
-        <button className="nova-link">Recent reports →</button>
+        <span>Last reconciled at {PORTFOLIO.asOf} · Source: BNY Mellon, Aladdin</span>
+        <button className="nova-link" disabled title="Coming soon" style={{opacity:0.5, cursor:'not-allowed'}}>Recent reports →</button>
       </div>
     </div>
   );

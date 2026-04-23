@@ -49,21 +49,21 @@ export function Performance() {
   const pick = (id) => () => setSelectedKpi(id);
 
   return (
-    <div style={{flex:1, overflow:'auto', padding:'clamp(16px, 2.5vw, 24px)', display:'flex', flexDirection:'column', gap:16, width:'100%', maxWidth:1600, margin:'0 auto'}}>
-      <div style={{display:'grid', gridTemplateColumns:`repeat(${kpiCols}, minmax(0, 1fr))`, gap:12}}>
+    <div style={{flex:1, overflow:'auto', padding:'var(--screen-pad)', display:'flex', flexDirection:'column', gap:'var(--gap-md)', width:'100%', maxWidth:1600, margin:'0 auto'}}>
+      <div style={{display:'grid', gridTemplateColumns:`repeat(${kpiCols}, minmax(0, 1fr))`, gap:'var(--gap-sm)'}}>
         <HeroKpi label="Total MV" value={PORTFOLIO.totalMvDisplay}                                          delta={2.41}  spark={sparks?.totalMv      ?? series(20,100,2,101,0.5)}    compact selected={selectedKpi==='totalMv'} onClick={pick('totalMv')}/>
         <HeroKpi label="MTD"      value={PORTFOLIO.mtdReturnDisplay    ?? `+${PORTFOLIO.mtdReturn.toFixed(2)}%`}    delta={0.18}  spark={sparks?.mtdReturn    ?? series(20,100,1.5,102,0.3)} compact selected={selectedKpi==='mtd'}     onClick={pick('mtd')}/>
-        <HeroKpi label="YTD"      value={PORTFOLIO.ytdReturnDisplay}                                        delta={1.63}  deltaLabel="pts" spark={sparks?.ytdReturn    ?? series(20,100,2.2,103,0.8)} compact selected={selectedKpi==='ytd'}     onClick={pick('ytd')}/>
+        <HeroKpi label="YTD"      value={PORTFOLIO.ytdReturnDisplay}                                        delta={1.63}  deltaSuffix="pts" spark={sparks?.ytdReturn    ?? series(20,100,2.2,103,0.8)} compact selected={selectedKpi==='ytd'}     onClick={pick('ytd')}/>
         <HeroKpi label="Active"   value={PORTFOLIO.activeReturnDisplay ?? `+${PORTFOLIO.activeReturn.toFixed(2)}%`} delta={-0.04} spark={sparks?.activeReturn ?? series(20,100,0.8,104,0.2)} compact selected={selectedKpi==='active'}  onClick={pick('active')}/>
         <HeroKpi label="Tracking" value={`${PORTFOLIO.trackingErr.toFixed(2)}%`}                            delta={-0.12} spark={series(20,100,0.5,105,0)} compact/>
-        <HeroKpi label="Sharpe"   value={PORTFOLIO.sharpeDisplay       ?? PORTFOLIO.sharpe.toFixed(2)}              delta={0.09}  deltaLabel="" spark={sparks?.sharpe       ?? series(20,100,1.1,107,0.2)} compact/>
+        <HeroKpi label="Sharpe"   value={PORTFOLIO.sharpeDisplay       ?? PORTFOLIO.sharpe.toFixed(2)}              delta={0.09}  deltaSuffix="" spark={sparks?.sharpe       ?? series(20,100,1.1,107,0.2)} compact/>
       </div>
 
       <NovaPanel title="Performance Results" subtitle="Net of Fees · Monthly · GBP" actions={<div style={{display:'flex', gap:4}}><NovaChip>Account</NovaChip><NovaChip active>Asset</NovaChip><NovaChip>Strategy</NovaChip></div>} padded={false} subtle>
         <NovaGrid dataset="portfolios" columnDefs={PERF_COLS} height={CHART_HEIGHT.xl} sortModel={sortModel}/>
       </NovaPanel>
 
-      <div style={{display:'grid', gridTemplateColumns:wide, gap:16}}>
+      <div style={{display:'grid', gridTemplateColumns:wide, gap:'var(--gap-md)'}}>
         <NovaPanel title="Allocation History" subtitle="by Asset Class">
           <HxArea series={DATA.allocationHistory.series} labels={DATA.allocationHistory.labels} height={CHART_HEIGHT.lg}/>
         </NovaPanel>
@@ -72,7 +72,7 @@ export function Performance() {
         </NovaPanel>
       </div>
 
-      <div style={{display:'grid', gridTemplateColumns:twoCol, gap:16}}>
+      <div style={{display:'grid', gridTemplateColumns:twoCol, gap:'var(--gap-md)'}}>
         <NovaPanel title="Returns by Account" subtitle="vs MSCI World">
           <HxBar groups={DATA.returnsByAccount.labels} series={DATA.returnsByAccount.data} compareLine={DATA.returnsByAccount.line} height={CHART_HEIGHT.md}/>
         </NovaPanel>

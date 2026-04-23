@@ -68,10 +68,31 @@
   --fs-sm: 12px;
   --fs-md: 13px;
   --fs-lg: 15px;
+  --fs-display-sm: 18px;  /* Mini-KPI values inside panel footers (3-up metric rows). */
   --fs-xl: 20px;
+  --fs-h1: 24px;          /* NovaFilterBar page title. */
   --fs-2xl: 28px;
+  --fs-kpi: 30px;         /* HeroKpi default/hero variant value row. */
   --fs-3xl: 40px;
+  --fs-hero: 44px;        /* HeroKpi large variant value row. */
   --fs-display: 68px;  /* Display-only: single large rating/grade glyph. */
+  /* Compact KPI value uses --fs-xl (20px) — no dedicated token needed. */
+
+  /* Layout rhythm — one scale, used consistently across screens. */
+  --gap-xs: 8px;
+  --gap-sm: 12px;
+  --gap-md: 16px;
+  --gap-lg: 24px;
+  --gap-xl: 32px;
+
+  /* Screen container padding — standard + dense variants. Replaces inline clamp() strings. */
+  --screen-pad: clamp(16px, 2.5vw, 28px);
+  --screen-pad-dense: clamp(14px, 2vw, 20px);
+
+  /* Icon sizes — three-step scale for nav / utility / display glyphs. */
+  --icon-nav: 20px;
+  --icon-utility: 18px;
+  --icon-display: 32px;
 
   --radius-sm: 4px;
   --radius: 6px;
@@ -137,7 +158,7 @@
   --shadow-md: 0 6px 20px -4px rgba(0,0,0,.5), 0 2px 6px rgba(0,0,0,.3);
   --shadow-pop: 0 20px 60px -10px rgba(0,0,0,.8), 0 8px 20px rgba(0,0,0,.5);
   --shadow-glow: 0 0 0 1px rgba(69, 137, 255, 0.28);
-  --shadow-xs: 0 0 0 1px rgba(255, 255, 255, 0.06);
+  --shadow-xs: 0 0 0 1px rgba(255, 255, 255, 0.10);  /* Bumped from 0.06 — segmented-control active state was invisible on Gray 100. */
   --shadow-pinned-left: 4px 0 12px -6px rgba(0, 0, 0, 0.6);
   --shadow-pinned-right: -4px 0 12px -6px rgba(0, 0, 0, 0.6);
 }

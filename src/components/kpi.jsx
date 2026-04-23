@@ -1,26 +1,34 @@
 // KPI primitives — HeroKpi covers three variants:
 //   'compact'  — tight 6-up KPI bands (HomeDense, Performance)
-//   'default'  — 4-up balanced grid (HomeClassic)
+//   'default'  — 4-up balanced grid
 //   'hero'     — prominent top accent bar + glow ring
-//   'large'    — generous whitespace, 44px value, sparkline below
+//   'large'    — generous whitespace, hero value, sparkline below
 //                (HomeMinimal's 3-KPI hero strip)
 //
 // `hero` and `compact` booleans preserved for backwards compat.
-// PillarRow is used by Issuer.jsx. NovaLogo/MiniGauge/RiskTile removed.
+// PillarRow is used by Issuer.jsx.
 // HeroKpi detects value changes and applies the .nova-flash animation
 // defined in tokens.css (respects prefers-reduced-motion via the global rule).
+// Flash is gated by a relative-delta threshold so micro-ticks don't strobe.
 import React, { useEffect, useRef, useState } from 'react';
 import { NovaSpark } from './charts.jsx';
 
-function useFlashOnValueChange(value) {
+function useFlashOnValueChange(value, threshold = 0.005) {
   const prev = useRef(value);
   const [flashKey, setFlashKey] = useState(0);
   useEffect(() => {
-    if (prev.current !== value && prev.current !== undefined) {
-      setFlashKey((k) => k + 1);
+    const p = prev.current;
+    if (p !== undefined && p !== value) {
+      const pNum = typeof p === 'number' ? p : parseFloat(String(p).replace(/[^0-9.\-]/g, ''));
+      const vNum = typeof value === 'number' ? value : parseFloat(String(value).replace(/[^0-9.\-]/g, ''));
+      const denom = Math.abs(pNum) || 1;
+      const relDelta = Number.isFinite(pNum) && Number.isFinite(vNum)
+        ? Math.abs((vNum - pNum) / denom)
+        : 1;
+      if (relDelta > threshold) setFlashKey((k) => k + 1);
     }
     prev.current = value;
-  }, [value]);
+  }, [value, threshold]);
   return flashKey;
 }
 
@@ -28,8 +36,7 @@ export function HeroKpi({
   label,
   value,
   delta,
-  deltaLabel,
-  deltaSuffix,
+  deltaSuffix = '%',
   spark,
   hero,
   compact,
@@ -49,7 +56,7 @@ export function HeroKpi({
   const interactive = typeof onClick === 'function';
 
   const up = (delta ?? 0) >= 0;
-  const suffix = deltaSuffix ?? deltaLabel ?? '%';
+  const suffix = deltaSuffix;
   const isNeutral = tone === 'neutral';
   const deltaColor = isNeutral ? 'var(--ink-3)' : (up ? 'var(--pos)' : 'var(--neg)');
   const flashKey = useFlashOnValueChange(value);
@@ -59,7 +66,7 @@ export function HeroKpi({
     return (
       <div style={{display:'flex', flexDirection:'column', gap:8, padding:'8px 0'}}>
         <div style={{fontSize:'var(--fs-xs)', color:'var(--ink-4)', fontWeight:500, letterSpacing:'0.04em', textTransform:'uppercase'}}>{label}</div>
-        <div key={flashKey} className={flashKey ? 'nova-flash mono' : 'mono'} style={{fontSize:44, fontWeight:600, letterSpacing:'-0.03em', color:'var(--ink)', lineHeight:1}}>{value}</div>
+        <div key={flashKey} className={flashKey ? 'nova-flash mono' : 'mono'} style={{fontSize:'var(--fs-hero)', fontWeight:600, letterSpacing:'-0.03em', color:'var(--ink)', lineHeight:1}}>{value}</div>
         <div style={{display:'flex', alignItems:'center', gap:12, marginTop:4}}>
           {delta != null && (
             <div className="mono" aria-label={`${up?'up':'down'} ${Math.abs(delta).toFixed(2)}${suffix}`} style={{fontSize:'var(--fs-sm)', color:deltaColor, fontWeight:600}}>
@@ -72,10 +79,18 @@ export function HeroKpi({
     );
   }
 
-  // Default / compact / hero variants share tile chrome
+  // Default / compact / hero variants share tile chrome.
+  // Interactive-but-not-selected tiles use a stronger border + subtle shadow
+  // so users can see at-a-glance which tiles are pressable vs display-only.
   const tilePadding = isCompact ? '14px 14px' : '18px 20px';
-  const valueFontSize = isCompact ? 20 : 30;
+  const valueFontSize = isCompact ? 'var(--fs-xl)' : 'var(--fs-kpi)';
   const deltaAria = delta != null ? `${up ? 'up' : 'down'} ${Math.abs(delta).toFixed(2)}${suffix}` : '';
+
+  const interactiveIdle = interactive && !isHero;
+  const tileBorder = isHero
+    ? 'var(--line)'
+    : interactiveIdle ? 'var(--line)' : 'var(--line-faint)';
+  const tileBoxShadow = interactiveIdle ? 'var(--shadow-xs)' : 'none';
 
   const Root = interactive ? 'button' : 'div';
   return (
@@ -86,20 +101,21 @@ export function HeroKpi({
         type: 'button',
         onClick,
         'aria-pressed': selected ? 'true' : 'false',
+        title: 'Click to sort by this metric',
       } : {})}
       style={{
         background: isHero ? 'color-mix(in srgb, var(--accent) 4%, transparent)' : 'transparent',
-        border: '1px solid ' + (isHero ? 'var(--line)' : 'var(--line-faint)'),
+        border: '1px solid ' + tileBorder,
         borderRadius:'var(--radius-lg)',
         padding: tilePadding,
         position:'relative',
         overflow:'hidden',
-        boxShadow: 'none',
+        boxShadow: tileBoxShadow,
         minWidth:0,
         textAlign: interactive ? 'left' : undefined,
         width: interactive ? '100%' : undefined,
         cursor: interactive ? 'pointer' : undefined,
-        transition: 'background 120ms, border-color 120ms',
+        transition: 'background 120ms, border-color 120ms, box-shadow 120ms',
       }}
       {...(interactive ? {
         onMouseEnter: (e) => { if (!selected) e.currentTarget.style.background = 'color-mix(in srgb, var(--accent) 2%, transparent)'; },

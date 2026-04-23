@@ -46,20 +46,20 @@ export function Risk() {
   const pick = (id) => () => setSelectedKpi(id);
 
   return (
-    <div style={{flex:1, overflow:'auto', padding:'clamp(16px, 2.5vw, 24px)', display:'flex', flexDirection:'column', gap:16, width:'100%', maxWidth:1600, margin:'0 auto'}}>
-      <div style={{display:'grid', gridTemplateColumns:`repeat(${kpiCols}, 1fr)`, gap:12}}>
+    <div style={{flex:1, overflow:'auto', padding:'var(--screen-pad)', display:'flex', flexDirection:'column', gap:'var(--gap-md)', width:'100%', maxWidth:1600, margin:'0 auto'}}>
+      <div style={{display:'grid', gridTemplateColumns:`repeat(${kpiCols}, 1fr)`, gap:'var(--gap-sm)'}}>
         <HeroKpi label="VaR 95%"  value={PORTFOLIO.var95Display}                                            delta={-0.12} spark={sparks?.var95    ?? series(20,100,1.5,201,-0.1)} selected={selectedKpi==='var95'}  onClick={pick('var95')}/>
         <HeroKpi label="VaR 99%"  value={PORTFOLIO.var99Display    ?? `$${(PORTFOLIO.var99/1_000_000).toFixed(1)}M`} delta={0.34}  spark={sparks?.var99    ?? series(20,100,1.8,202,0.1)}  selected={selectedKpi==='var99'}  onClick={pick('var99')}/>
         <HeroKpi label="CVaR"     value={PORTFOLIO.cvarDisplay}                                             delta={0.21}  spark={sparks?.cvar     ?? series(20,100,2,203,0.15)}  selected={selectedKpi==='cvar'}   onClick={pick('cvar')}/>
-        <HeroKpi label="Beta"     value={PORTFOLIO.betaDisplay     ?? PORTFOLIO.beta.toFixed(2)}            delta={0.03}  deltaLabel="" spark={sparks?.beta     ?? series(20,100,0.8,204,0.05)}/>
-        <HeroKpi label="Leverage" value={PORTFOLIO.leverageDisplay ?? `${PORTFOLIO.leverage.toFixed(2)}×`}  delta={-0.02} deltaLabel="" spark={sparks?.leverage ?? series(20,100,0.5,205,0)}/>
+        <HeroKpi label="Beta"     value={PORTFOLIO.betaDisplay     ?? PORTFOLIO.beta.toFixed(2)}            delta={0.03}  deltaSuffix="" spark={sparks?.beta     ?? series(20,100,0.8,204,0.05)}/>
+        <HeroKpi label="Leverage" value={PORTFOLIO.leverageDisplay ?? `${PORTFOLIO.leverage.toFixed(2)}×`}  delta={-0.02} deltaSuffix="" spark={sparks?.leverage ?? series(20,100,0.5,205,0)}/>
       </div>
 
       <NovaPanel title="Risk Summary" subtitle="Aggregate & fund-level breakdown" padded={false} subtle>
         <NovaGrid dataset="riskSummary" columnDefs={RISK_COLS} height={CHART_HEIGHT.lg + 80} sortModel={sortModel}/>
       </NovaPanel>
 
-      <div style={{display:'grid', gridTemplateColumns:twoCol, gap:16}}>
+      <div style={{display:'grid', gridTemplateColumns:twoCol, gap:'var(--gap-md)'}}>
         <NovaPanel title="Risk Contribution" subtitle="By risk type">
           <HxBar groups={DATA.riskContribution.labels} series={DATA.riskContribution.data} height={CHART_HEIGHT.md}/>
         </NovaPanel>

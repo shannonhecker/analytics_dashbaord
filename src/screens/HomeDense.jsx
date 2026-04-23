@@ -101,21 +101,21 @@ export function HomeDense({ openDash }) {
   const triCols = isMobile ? '1fr' : isTablet ? '1fr 1fr' : '1fr 1fr 1fr';
 
   return (
-    <div style={{flex:1, overflow:'auto', padding:'clamp(14px, 2vw, 20px)', display:'flex', flexDirection:'column', gap:14, width:'100%', maxWidth:1600, margin:'0 auto'}}>
+    <div style={{flex:1, overflow:'auto', padding:'var(--screen-pad-dense)', display:'flex', flexDirection:'column', gap:'var(--gap-sm)', width:'100%', maxWidth:1600, margin:'0 auto'}}>
 
       {/* KPI band — 6 → 3 → 2. Values + sparklines tick live via useSparks. */}
       <div style={{display:'grid', gridTemplateColumns:`repeat(${kpiCols}, minmax(0,1fr))`, gap:10}}>
         <HeroKpi label="Total MV"      value={PORTFOLIO.totalMvDisplay}                                          delta={2.41}  spark={sparks?.totalMv      ?? series(20,100,2,101,0.5)}    hero compact/>
-        <HeroKpi label="YTD Return"    value={PORTFOLIO.ytdReturnDisplay}                                        delta={1.63}  deltaLabel="pts" spark={sparks?.ytdReturn    ?? series(20,100,2.2,103,0.8)} compact/>
-        <HeroKpi label="MTD Return"    value={PORTFOLIO.mtdReturnDisplay    ?? `+${PORTFOLIO.mtdReturn.toFixed(2)}%`}    delta={0.34}  deltaLabel="pts" spark={sparks?.mtdReturn    ?? series(20,100,1.4,102,0.3)} compact/>
+        <HeroKpi label="YTD Return"    value={PORTFOLIO.ytdReturnDisplay}                                        delta={1.63}  deltaSuffix="pts" spark={sparks?.ytdReturn    ?? series(20,100,2.2,103,0.8)} compact/>
+        <HeroKpi label="MTD Return"    value={PORTFOLIO.mtdReturnDisplay    ?? `+${PORTFOLIO.mtdReturn.toFixed(2)}%`}    delta={0.34}  deltaSuffix="pts" spark={sparks?.mtdReturn    ?? series(20,100,1.4,102,0.3)} compact/>
         <HeroKpi label="Active"        value={PORTFOLIO.activeReturnDisplay ?? `+${PORTFOLIO.activeReturn.toFixed(2)}%`} delta={-0.04} spark={sparks?.activeReturn ?? series(20,100,0.8,104,0.2)} compact/>
-        <HeroKpi label="Sharpe"        value={PORTFOLIO.sharpeDisplay       ?? PORTFOLIO.sharpe.toFixed(2)}              delta={0.09}  deltaLabel="" spark={sparks?.sharpe       ?? series(20,100,1.1,107,0.2)} compact/>
+        <HeroKpi label="Sharpe"        value={PORTFOLIO.sharpeDisplay       ?? PORTFOLIO.sharpe.toFixed(2)}              delta={0.09}  deltaSuffix="" spark={sparks?.sharpe       ?? series(20,100,1.1,107,0.2)} compact/>
         <HeroKpi label="VaR 95% / 1d"  value={PORTFOLIO.var95Display}                                            delta={-0.42} spark={sparks?.var95        ?? series(20,100,1.5,102,0.4)} compact/>
       </div>
 
       {/* Alerts (left) + Movers (right) */}
-      <div style={{display:'grid', gridTemplateColumns:splitCols, gap:14}}>
-        <NovaPanel title="Attention" subtitle={`${ALERTS.length} items · sorted by severity`} actions={<button className="nova-link" style={{fontSize:'var(--fs-xs)'}}>All →</button>}>
+      <div style={{display:'grid', gridTemplateColumns:splitCols, gap:'var(--gap-sm)'}}>
+        <NovaPanel title="Attention" subtitle={`${ALERTS.length} items · sorted by severity`} actions={<button className="nova-link" disabled title="Coming soon" style={{fontSize:'var(--fs-xs)', opacity:0.5, cursor:'not-allowed'}}>All →</button>}>
           <div style={{borderTop:'1px solid var(--line-faint)'}}>
             {ALERTS.map((a,i) => <NovaAlertRow key={i} sev={a.sev} cat={a.cat} text={a.text} meta={a.meta} onClick={()=>openDash?.(a.dest)} showCaret={false}/>)}
           </div>
@@ -140,7 +140,7 @@ export function HomeDense({ openDash }) {
       </div>
 
       {/* Performance (left, wide) | Risk (right, wide) */}
-      <div style={{display:'grid', gridTemplateColumns:twinCols, gap:14}}>
+      <div style={{display:'grid', gridTemplateColumns:twinCols, gap:'var(--gap-sm)'}}>
         <NovaPanel title="Performance" subtitle="Cumulative return vs benchmark · 24m" actions={<div style={{display:'flex', gap:4}}><NovaChip>3M</NovaChip><NovaChip>YTD</NovaChip><NovaChip active>24M</NovaChip><NovaChip>3Y</NovaChip></div>}>
           <HxArea series={DATA.allocationHistory.series.slice(0,2)} labels={DATA.allocationHistory.labels} height={CHART_HEIGHT.sm}/>
         </NovaPanel>
@@ -152,7 +152,7 @@ export function HomeDense({ openDash }) {
       </div>
 
       {/* Allocation donut + Stress test + ESG gauges (3-up) */}
-      <div style={{display:'grid', gridTemplateColumns:triCols, gap:14}}>
+      <div style={{display:'grid', gridTemplateColumns:triCols, gap:'var(--gap-sm)'}}>
         <NovaPanel title="Allocation" subtitle="Current weights">
           <HxDonut segments={DATA.allocation.map(a => ({label:a.cls, value:a.actual, color:a.color}))} height={CHART_HEIGHT.sm}/>
         </NovaPanel>

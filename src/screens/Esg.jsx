@@ -17,30 +17,45 @@ const SECTOR_COLS = [
   { field: 'gov',    headerName: 'G', cellRenderer: HeatmapCell, cellRendererParams:{ center:6.5, domain:[-5,4] }, type:'numericColumn', maxWidth:90 },
 ];
 
+const PILLARS = [
+  { letter:'E', name:'Environmental', value:4.21, color:'var(--c2)' },
+  { letter:'S', name:'Social',        value:6.30, color:'var(--c1)' },
+  { letter:'G', name:'Governance',    value:9.28, color:'var(--c3)' },
+];
+
 export function Esg() {
   const { isMobile, isTablet } = useViewport();
   const pillarCols = isMobile ? 1 : 3;
   const twoCol = isMobile || isTablet ? '1fr' : '1fr 1fr';
 
   return (
-    <div style={{flex:1, overflow:'auto', padding:'clamp(16px, 2.5vw, 24px)', display:'flex', flexDirection:'column', gap:16, width:'100%', maxWidth:1600, margin:'0 auto'}}>
+    <div style={{flex:1, overflow:'auto', padding:'var(--screen-pad)', display:'flex', flexDirection:'column', gap:'var(--gap-md)', width:'100%', maxWidth:1600, margin:'0 auto'}}>
       {/* Overall ESG headline — wide, large gauge, visually dominant */}
       <NovaPanel title="ESG Score" subtitle="Overall weighted score across holdings">
         <HxGauge value={5.50} max={10} label="ESG" color="var(--accent)" large ariaLabel="Overall ESG score 5.50 out of 10, weighted by holdings"/>
       </NovaPanel>
 
-      {/* 3-up pillar breakdown — secondary to the headline */}
-      <div style={{display:'grid', gridTemplateColumns:`repeat(${pillarCols}, 1fr)`, gap:16}}>
-        <NovaPanel title="Environmental" subtitle="Pillar"><HxGauge value={4.21} max={10} label="E" color="var(--c2)" compact ariaLabel="Environmental pillar score 4.21 out of 10"/></NovaPanel>
-        <NovaPanel title="Social" subtitle="Pillar"><HxGauge value={6.30} max={10} label="S" color="var(--c1)" compact ariaLabel="Social pillar score 6.30 out of 10"/></NovaPanel>
-        <NovaPanel title="Governance" subtitle="Pillar"><HxGauge value={9.28} max={10} label="G" color="var(--c3)" compact ariaLabel="Governance pillar score 9.28 out of 10"/></NovaPanel>
-      </div>
+      {/* Pillars — collapsed into a single panel. Inline color dots act as the
+          legend so E=cyan / S=purple / G=teal is self-evident. */}
+      <NovaPanel title="ESG Pillars" subtitle="Environmental · Social · Governance">
+        <div style={{display:'grid', gridTemplateColumns:`repeat(${pillarCols}, 1fr)`, gap:'var(--gap-md)'}}>
+          {PILLARS.map(p => (
+            <div key={p.letter} style={{display:'flex', flexDirection:'column', alignItems:'center', gap:8}}>
+              <HxGauge value={p.value} max={10} label={p.letter} color={p.color} compact ariaLabel={`${p.name} pillar score ${p.value.toFixed(2)} out of 10`}/>
+              <div style={{display:'inline-flex', alignItems:'center', gap:8, fontSize:'var(--fs-sm)', color:'var(--ink-2)', fontWeight:500}}>
+                <span aria-hidden="true" style={{width:8, height:8, borderRadius:'50%', background:p.color}}/>
+                {p.name}
+              </div>
+            </div>
+          ))}
+        </div>
+      </NovaPanel>
 
       <NovaPanel title="Sector Breakdown" subtitle="Weighted key issues by GICS sector" padded={false} subtle>
         <NovaGrid dataset="sectorBreakdown" columnDefs={SECTOR_COLS} height={CHART_HEIGHT.xl + 40}/>
       </NovaPanel>
 
-      <div style={{display:'grid', gridTemplateColumns:twoCol, gap:16}}>
+      <div style={{display:'grid', gridTemplateColumns:twoCol, gap:'var(--gap-md)'}}>
         <NovaPanel title="ESG Trend" subtitle="Quarterly">
           <HxBar groups={DATA.esgTrend.labels} series={DATA.esgTrend.bars} compareLine={DATA.esgTrend.line} height={CHART_HEIGHT.md}/>
         </NovaPanel>

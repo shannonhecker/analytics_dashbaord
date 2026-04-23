@@ -4,6 +4,13 @@
 import React from 'react';
 import { useViewport } from '../hooks/use-viewport.js';
 
+// Runtime check — the global tokens.css rule neutralises transition-duration
+// under reduced-motion but inline `transform: translateY(-1px)` snaps
+// instantly without it. Hover handlers skip the translate when this is true.
+const prefersReducedMotion = () =>
+  typeof window !== 'undefined' &&
+  window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+
 // `label` is shown in the rail (short). `title` (passed as aria-label + hover)
 // carries the full name so screen readers and tooltips aren't abbreviated.
 const NAV_ITEMS = [
@@ -69,7 +76,7 @@ function DesktopRail({screen, setScreen, theme, setTheme, onCmdK, onShare}) {
               onBlur={e=>{if(!active){e.currentTarget.style.background='transparent'; e.currentTarget.style.color='var(--ink-3)';}}}
             >
               {active && <span aria-hidden="true" style={{position:'absolute', left:-8, top:10, bottom:10, width:3, background:'var(--accent)', borderTopRightRadius:2, borderBottomRightRadius:2}}/>}
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{it.icon}</svg>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{it.icon}</svg>
               <span style={{fontSize:'var(--fs-xs)', fontWeight:active?600:500, letterSpacing:'0.01em', lineHeight:1}}>{it.label}</span>
             </button>
           );
@@ -156,7 +163,7 @@ function RailIcon({children, onClick, label}) {
       onFocus={hover}
       onBlur={leave}
     >
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{children}</svg>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{children}</svg>
     </button>
   );
 }
@@ -213,15 +220,18 @@ export function NovaFilterBar({title, subtitle, filters, theme, setTheme, onCmdK
             </HeaderIcon>
           )}
         </div>
-        <div style={{display:'flex', gap:8, marginTop:12, overflowX:'auto', paddingBottom:4, scrollbarWidth:'none'}}>
-          {filters.map((f,i)=><NovaFilter key={i} {...f}/>)}
-          <button
-            style={{flexShrink:0, height:44, padding:'0 16px', background:'var(--accent)', color:'white', borderRadius:'var(--radius)', fontSize:'var(--fs-sm)', fontWeight:600, transition:'filter 120ms'}}
-            onMouseEnter={e=>{e.currentTarget.style.filter='brightness(1.08)';}}
-            onMouseLeave={e=>{e.currentTarget.style.filter='brightness(1)';}}
-            onFocus={e=>{e.currentTarget.style.filter='brightness(1.08)';}}
-            onBlur={e=>{e.currentTarget.style.filter='brightness(1)';}}
-          >Export</button>
+        <div style={{position:'relative'}}>
+          <div style={{display:'flex', gap:'var(--gap-xs)', marginTop:'var(--gap-sm)', overflowX:'auto', paddingBottom:4, scrollbarWidth:'none'}}>
+            {filters.map((f,i)=><NovaFilter key={i} {...f}/>)}
+            <button
+              style={{flexShrink:0, height:44, padding:'0 16px', background:'var(--accent)', color:'white', borderRadius:'var(--radius)', fontSize:'var(--fs-sm)', fontWeight:600, transition:'filter 120ms'}}
+              onMouseEnter={e=>{e.currentTarget.style.filter='brightness(1.08)';}}
+              onMouseLeave={e=>{e.currentTarget.style.filter='brightness(1)';}}
+              onFocus={e=>{e.currentTarget.style.filter='brightness(1.08)';}}
+              onBlur={e=>{e.currentTarget.style.filter='brightness(1)';}}
+            >Export</button>
+          </div>
+          <div aria-hidden="true" style={{position:'absolute', top:12, right:0, bottom:4, width:16, background:'linear-gradient(to right, transparent, var(--bg-elev))', pointerEvents:'none'}}/>
         </div>
       </div>
     );
@@ -229,9 +239,9 @@ export function NovaFilterBar({title, subtitle, filters, theme, setTheme, onCmdK
 
   return (
     <div style={{padding:'20px 28px 16px', borderBottom:'1px solid var(--line)', background:'var(--bg-elev)', position:'sticky', top:0, zIndex:10}}>
-      <div style={{display:'flex', alignItems:'flex-end', gap:16, flexWrap:'wrap'}}>
+      <div style={{display:'flex', alignItems:'flex-end', gap:'var(--gap-md)', flexWrap:'wrap'}}>
         <div style={{flex:1, minWidth:0}}>
-          <h1 style={{margin:0, fontSize:24, fontWeight:700, letterSpacing:'-0.02em', color:'var(--ink)'}}>{title}</h1>
+          <h1 style={{margin:0, fontSize:'var(--fs-h1)', fontWeight:700, letterSpacing:'-0.02em', color:'var(--ink)'}}>{title}</h1>
           {subtitle && <div style={{fontSize:'var(--fs-md)', color:'var(--ink-3)', marginTop:4}}>{subtitle}</div>}
         </div>
         <div style={{display:'flex', gap:8, flexWrap:'wrap', alignItems:'center'}}>
@@ -268,7 +278,7 @@ function NovaFilter({label, value}) {
   );
 }
 
-export function NovaPanel({title, subtitle, actions, children, padded=true, noHead, seeAll, onSeeAll, interactive=false, raised=false, subtle=false, onClick}) {
+export function NovaPanel({title, subtitle, actions, children, padded=true, noHead, seeAll, onSeeAll, interactive=false, raised=false, subtle=false, onClick, as='h2'}) {
   // Default = flat outline (transparent bg, --line-faint border, no shadow).
   // Gives each section a clear boundary without the card-lift feel.
   // `raised` opts back into solid card chrome (bg + --line + shadow).
@@ -293,7 +303,7 @@ export function NovaPanel({title, subtitle, actions, children, padded=true, noHe
         onMouseEnter: (e) => {
           e.currentTarget.style.borderColor = 'var(--line-strong)';
           e.currentTarget.style.boxShadow = 'var(--shadow-md)';
-          e.currentTarget.style.transform = 'translateY(-1px)';
+          if (!prefersReducedMotion()) e.currentTarget.style.transform = 'translateY(-1px)';
         },
         onMouseLeave: (e) => {
           e.currentTarget.style.borderColor = 'var(--line)';
@@ -303,7 +313,7 @@ export function NovaPanel({title, subtitle, actions, children, padded=true, noHe
         onFocus: (e) => {
           e.currentTarget.style.borderColor = 'var(--line-strong)';
           e.currentTarget.style.boxShadow = 'var(--shadow-md)';
-          e.currentTarget.style.transform = 'translateY(-1px)';
+          if (!prefersReducedMotion()) e.currentTarget.style.transform = 'translateY(-1px)';
         },
         onBlur: (e) => {
           e.currentTarget.style.borderColor = 'var(--line)';
@@ -319,7 +329,7 @@ export function NovaPanel({title, subtitle, actions, children, padded=true, noHe
           borderBottom: flat ? '1px solid var(--line-faint)' : 'none',
         }}>
           <div style={{flex:1, minWidth:0}}>
-            <div style={{fontSize:'var(--fs-md)', fontWeight:600, letterSpacing:'-0.01em', color:'var(--ink)'}}>{title}</div>
+            {React.createElement(as, {style:{margin:0, fontSize:'var(--fs-md)', fontWeight:600, letterSpacing:'-0.01em', color:'var(--ink)'}}, title)}
             {subtitle && <div style={{fontSize:'var(--fs-xs)', color:'var(--ink-4)', marginTop:2}}>{subtitle}</div>}
           </div>
           {actions}
